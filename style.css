@@ -1,0 +1,57 @@
+/* 全局样式 */
+body {
+  font-family: 'Arial', sans-serif; /* 默认字体 */
+  line-height: 1.6;                /* 行高 */
+  margin: 0;                       /* 去除默认边距 */
+  padding: 0;
+  color: #333;                     /* 文字颜色 */
+  background-color: #f4f4f4;       /* 背景色 */
+}
+
+/* 导航栏样式 */
+.navbar {
+  background: #35424a;             /* 深色背景 */
+  color: white;
+  padding: 1rem 0;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;           /* 去掉下划线 */
+  padding: 0 1rem;
+}
+
+/* 内容区域 */
+.container {
+  width: 80%;
+  margin: auto;                    /* 居中 */
+  padding: 2rem 0;
+}
+
+/* 标题样式 */
+h1 {
+  color: #35424a;
+  border-bottom: 2px solid #e8491d; /* 下方橙色边框 */
+  padding-bottom: 0.5rem;
+}
+
+/* 按钮样式 */
+.button {
+  display: inline-block;
+  background: #e8491d;             /* 橙色按钮 */
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #333;                /* 悬停变深色 */
+}
+
+/* 响应式设计：手机端适配 */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;                   /* 小屏幕加宽 */
+  }
+}

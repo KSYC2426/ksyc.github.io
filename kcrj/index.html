@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>酷尘软件</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0 15px;
+      box-sizing: border-box;
+    }
+
+   .app-card {
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      box-sizing: border-box;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 680px;
+      transition: transform 0.3s ease;
+    }
+
+   .app-card:hover {
+      transform: translateY(-5px);
+    }
+
+   .app-image {
+      width: 120px;
+      height: 120px;
+      border-radius: 20px;
+      object-fit: cover;
+      margin-bottom: 20px;
+    }
+
+   .app-name {
+      font-size: 30px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 10px;
+      color: #007bff;
+    }
+
+   .app-description {
+      color: #333;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+   .screenshots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+   .screenshot {
+      width: 16%;
+      min-width: 80px;
+      margin: 0 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+
+   .download-button {
+      display: inline-block;
+      background-color: #007bff;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+   .download-button:hover {
+      background-color: #0056b3;
+    }
+
+   .note {
+      color: black;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+   .enlarged-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+   .enlarged-image img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+
+    /* 给提示文字添加边框样式 */
+    #v6 {
+      color: #fff;
+      background-color: #669985;
+      padding: 2px 10px;
+      display: inline-block;
+      border-radius: 10px;
+    }
+
+    /* 给获取的txt文字添加边框及自动换行样式 */
+    #text {
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      padding: 15px;
+      width: 80%;
+      text-align: left;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  </style>
+  <script src="js/jq.js"></script>
+</head>
+
+<body id="v1">
+  <div id="v2" class="app-card">
+    <img id="v3" class="app-image" src="./images/icon1.png" alt="App Image">
+    <div id="v4" class="app-name">
+      酷尘软件
+    </div>
+    <div id="v5" class="app-description">
+      0.1.1版本测试
+    </div>
+    <pre id="text">介绍区域，软件还没有发布，下载的是一个测试表格。</pre>
+    <p id="v6">如进不去可下载最新版</p>
+    <div id="v7" class="screenshots">
+      <img id="v8" class="screenshot" src="images/01.png" alt="App 1" onclick="enlargeImage(this.src)">
+      <img id="v9" class="screenshot" src="images/02.png" alt="App 2" onclick="enlargeImage(this.src)">
+      <img id="v10" class="screenshot" src="images/03.png" alt="App 3" onclick="enlargeImage(this.src)">
+    </div>
+    <a id="v11" href="rjcc/cs.xlsx" class="download-button">立即下载</a>
+    <div id="v12" class="note">
+      作者：Ks丶余尘
+    </div>
+  </div>
+  <script>
+    function enlargeImage(src) {
+      const enlargedDiv = document.createElement('div');
+      enlargedDiv.classList.add('enlarged-image');
+      const img = document.createElement('img');
+      img.src = src;
+      img.onclick = function () {
+        document.body.removeChild(enlargedDiv);
+      };
+      enlargedDiv.appendChild(img);
+      document.body.appendChild(enlargedDiv);
+    }
+  </script>
+</body>
+
+</html>

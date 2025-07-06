@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酷尘 在线功能</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            background-image: url('http://kuchen.asia/images/bg.jpg'); /* 使用指定背景图片 */
+            background-size: cover;
+            background-position: center;
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #fff; /* 白色文字 */
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 文字阴影增强可读性 */
+        }
+
+        .long-button {
+            width: 300px;
+            height: 60px;
+            margin: 10px 0;
+            font-size: 18px;
+            color: #333; /* 深色文字 */
+            background-color: rgba(255, 255, 255, 0.5); /* 白色半透明效果 */
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .long-button:hover {
+            background-color: rgba(255, 255, 255, 0.9); /* 悬停时透明度变化 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .long-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>在线功能</h1>
+    <button class="long-button" onclick="window.open('./music/kgyy.html', '_blank')">酷狗音乐解析</button>
+    <button class="long-button" onclick="window.open('', '_blank')">网易云解析测试</button>
+    <button class="long-button" onclick="window.open('', '_blank')">测试</button>
+
+</body>
+</html>
