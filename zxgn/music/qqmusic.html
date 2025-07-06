@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QQ音乐解析</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .search-box {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .search-box button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-box button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .action-btn {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+        .download-btn {
+            background-color: #2196F3;
+        }
+        .download-btn:hover {
+            background-color: #0b7dda;
+        }
+        .play-btn {
+            background-color: #4CAF50;
+        }
+        .play-btn:hover {
+            background-color: #45a049;
+        }
+        .progress-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .progress-window {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .player-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            display: none;
+            z-index: 100;
+        }
+        .player-controls {
+            display: flex;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .player-info {
+            flex: 1;
+            margin: 0 20px;
+        }
+        .player-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .player-progress {
+            width: 100%;
+            height: 5px;
+            background-color: #555;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+        .player-progress-filled {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+        }
+        .player-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QQ音乐解析</h1>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="输入歌曲名或歌手">
+            <button id="searchBtn">搜索</button>
+        </div>
+        
+        <table id="songTable">
+            <thead>
+                <tr>
+                    <th>歌曲名</th>
+                    <th>歌手</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="songList">
+                <!-- 歌曲列表将在这里动态生成 -->
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-window">
+            <div>正在下载...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="player-container" id="playerContainer">
+        <div class="player-controls">
+            <button id="playPauseBtn">播放</button>
+            <div class="player-info">
+                <div class="player-title" id="playerTitle">未播放</div>
+                <div class="player-progress" id="playerProgress">
+                    <div class="player-progress-filled" id="playerProgressFilled"></div>
+                </div>
+                <div class="player-time">
+                    <span id="currentTime">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+            <button id="stopBtn">停止</button>
+        </div>
+    </div>
+    
+    <audio id="audioPlayer"></audio>
+    
+    <script>
+        // 音频播放器相关变量
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playerContainer = document.getElementById('playerContainer');
+        const playerTitle = document.getElementById('playerTitle');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const playerProgress = document.getElementById('playerProgress');
+        const playerProgressFilled = document.getElementById('playerProgressFilled');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        
+        // 播放器事件监听
+        audioPlayer.addEventListener('play', () => {
+            playPauseBtn.textContent = '暂停';
+            playerContainer.style.display = 'block';
+        });
+        
+        audioPlayer.addEventListener('pause', () => {
+            playPauseBtn.textContent = '播放';
+        });
+        
+        audioPlayer.addEventListener('timeupdate', updateProgress);
+        audioPlayer.addEventListener('ended', () => {
+            playerProgressFilled.style.width = '0%';
+            currentTimeEl.textContent = '0:00';
+        });
+        
+        playerProgress.addEventListener('click', (e) => {
+            const percent = e.offsetX / playerProgress.offsetWidth;
+            audioPlayer.currentTime = percent * audioPlayer.duration;
+        });
+        
+        playPauseBtn.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+            } else {
+                audioPlayer.pause();
+            }
+        });
+        
+        stopBtn.addEventListener('click', () => {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            playerContainer.style.display = 'none';
+        });
+        
+        function updateProgress() {
+            const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            playerProgressFilled.style.width = `${percent}%`;
+            
+            // 更新时间显示
+            currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+            durationEl.textContent = formatTime(audioPlayer.duration);
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        
+        // 搜索音乐
+        async function searchMusic() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                alert('请输入搜索内容');
+                return;
+            }
+            
+            try {
+                const url = `https://www.hhlqilongzhu.cn/api/dg_QQmusicflac.php?type=json&msg=${encodeURIComponent(query)}&n=`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.code !== 200 || !data.data) {
+                    alert('未找到相关歌曲');
+                    return;
+                }
+                
+                // 清空现有列表
+                const songList = document.getElementById('songList');
+                songList.innerHTML = '';
+                
+                // 添加新结果
+                data.data.forEach(song => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${song.song_title}</td>
+                        <td>${song.song_singer}</td>
+                        <td>
+                            <button class="action-btn play-btn" data-n="${song.n}" data-title="${song.song_title}" data-singer="${song.song_singer}">播放</button>
+                            <button class="action-btn download-btn" data-n="${song.n}" data-title="${song.song_title}" data-singer="${song.song_singer}">下载</button>
+                        </td>
+                    `;
+                    songList.appendChild(row);
+                });
+            } catch (error) {
+                alert(`搜索失败: ${error}`);
+            }
+        }
+        
+        // 播放歌曲
+        async function playSong(n, title, singer) {
+            const query = document.getElementById('searchInput').value.trim();
+            
+            try {
+                const infoUrl = `https://www.hhlqilongzhu.cn/api/dg_QQmusicflac.php?type=json&msg=${encodeURIComponent(query)}&n=${n}`;
+                const infoResponse = await fetch(infoUrl);
+                const info = await infoResponse.json();
+                
+                if (info.code !== 200 || !info.data) {
+                    alert('获取歌曲信息失败');
+                    return;
+                }
+                
+                const data = info.data;
+                const musicUrl = data.music_url;
+                
+                if (!musicUrl) {
+                    alert('无法获取歌曲播放地址');
+                    return;
+                }
+                
+                // 设置音频源并播放
+                audioPlayer.src = musicUrl;
+                playerTitle.textContent = `${title} - ${singer}`;
+                audioPlayer.play();
+            } catch (error) {
+                alert(`播放失败: ${error}`);
+            }
+        }
+        
+        // 下载歌曲
+        async function downloadSong(n, title, singer) {
+            const query = document.getElementById('searchInput').value.trim();
+
+            try {
+                const infoUrl = `https://www.hhlqilongzhu.cn/api/dg_QQmusicflac.php?type=json&msg=${encodeURIComponent(query)}&n=${n}`;
+                const infoResponse = await fetch(infoUrl);
+                const info = await infoResponse.json();
+
+                if (info.code !== 200 || !info.data) {
+                    alert('获取歌曲信息失败');
+                    return;
+                }
+
+                const data = info.data;
+                const songTitle = data.song_title || title;
+                const songSinger = data.song_singer || singer;
+                const safeBaseName = `${songTitle}-${songSinger}`.replace(/[\\/:*?"<>|]/g, '_');
+                const musicUrl = data.music_url;
+                const lyric = data.lyric || '';
+
+                if (!musicUrl) {
+                    alert('无法获取歌曲下载地址');
+                    return;
+                }
+
+                // 直接用a标签下载
+                const a = document.createElement('a');
+                a.href = musicUrl;
+                a.download = `${safeBaseName}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // 保存歌词
+                if (lyric) {
+                    const lyricBlob = new Blob([lyric.replace(/\\n/g, '\n')], { type: 'text/plain' });
+                    const lyricBlobUrl = URL.createObjectURL(lyricBlob);
+
+                    const lyricA = document.createElement('a');
+                    lyricA.href = lyricBlobUrl;
+                    lyricA.download = `${safeBaseName}.lrc`;
+                    document.body.appendChild(lyricA);
+                    lyricA.click();
+                    document.body.removeChild(lyricA);
+
+                    setTimeout(() => URL.revokeObjectURL(lyricBlobUrl), 100);
+                }
+
+                alert(`已下载：\n${safeBaseName}.mp3${lyric ? `\n${safeBaseName}.lrc` : ''}`);
+            } catch (error) {
+                alert(`下载失败: ${error}`);
+            }
+        }
+        
+        // 事件监听
+        document.getElementById('searchBtn').addEventListener('click', searchMusic);
+        
+        // 按Enter键搜索
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchMusic();
+            }
+        });
+        
+        // 动态按钮事件委托
+        document.getElementById('songList').addEventListener('click', function(e) {
+            if (e.target.classList.contains('play-btn')) {
+                const n = e.target.dataset.n;
+                const title = e.target.dataset.title;
+                const singer = e.target.dataset.singer;
+                playSong(n, title, singer);
+            } else if (e.target.classList.contains('download-btn')) {
+                const n = e.target.dataset.n;
+                const title = e.target.dataset.title;
+                const singer = e.target.dataset.singer;
+                downloadSong(n, title, singer);
+            }
+        });
+    </script>
+</body>
+</html>
