@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>葫芦侠</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #4285f4;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .search-box {
+            display: flex;
+            width: 60%;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+        
+        .search-box button {
+            padding: 10px 20px;
+            background-color: #34a853;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .search-box button:hover {
+            background-color: #2d9248;
+        }
+        
+        .results-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .result-count {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        
+        .app-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .app-card {
+            display: flex;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            height: 100%;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .app-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .app-icon-container {
+            width: 80px;
+            height: 80px;
+            margin-right: 15px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .app-icon {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: contain;
+            background-color: #f0f0f0;
+        }
+        
+        .icon-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .app-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .app-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-right: 10px;
+        }
+        
+        .app-meta {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .app-meta span {
+            margin-right: 12px;
+        }
+        
+        .app-types {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        
+        .type {
+            background-color: #f1f8e9;
+            color: #689f38;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+        
+        .app-footer {
+            margin-top: auto;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .download-btn {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.3s;
+            align-self: center;
+        }
+        
+        .download-btn:hover {
+            background-color: #3367d6;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .error {
+            color: #d32f2f;
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+        }
+        
+        .more-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 10px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .more-btn:hover {
+            background-color: #3367d6;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            margin-top: 50px;
+        }
+        
+        /* 详情页样式 */
+        .detail-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .back-btn {
+            background-color: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .detail-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .app-detail-row {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .app-detail-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 8px;
+            object-fit: contain;
+            background-color: #f0f0f0;
+        }
+        
+        .app-detail-info {
+            flex: 1;
+        }
+        
+        .app-detail-meta {
+            margin-bottom: 15px;
+        }
+        
+        .app-detail-desc {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .app-screenshots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .screenshot {
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .screenshot:hover {
+            transform: scale(1.02);
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                width: 100%;
+                margin-top: 15px;
+            }
+            
+            .app-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .app-detail-row {
+                flex-direction: column;
+            }
+            
+            .app-detail-image {
+                width: 100%;
+                height: auto;
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">葫芦侠</div>
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="输入软件名称...">
+                <button id="search-btn">搜索</button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div id="results-container" class="results-container">
+            <div id="initial-message" style="text-align: center; padding: 50px; color: #666;">
+                <h2>欢迎使用软件搜索平台</h2>
+                <p>在搜索框中输入您想查找的软件名称</p>
+            </div>
+            
+            <div id="search-results" class="hidden">
+                <div id="result-count" class="result-count"></div>
+                <div id="app-list" class="app-list"></div>
+                <button id="load-more" class="more-btn hidden">加载更多</button>
+            </div>
+            
+            <div id="loading" class="loading hidden">正在加载中...</div>
+            <div id="error" class="error hidden"></div>
+        </div>
+    </div>
+    
+    <!-- 详情页 -->
+    <div id="detail-page" class="detail-page">
+        <div class="container">
+            <div class="detail-header">
+                <h2 class="detail-title" id="detail-title">软件详情</h2>
+                <button class="back-btn" id="back-btn">返回列表</button>
+            </div>
+            <div class="detail-content" id="detail-content">
+                <!-- 详情内容将通过JavaScript动态填充 -->
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 软件搜索平台 - 提供海量软件资源</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            const initialMessage = document.getElementById('initial-message');
+            const searchResults = document.getElementById('search-results');
+            const resultCount = document.getElementById('result-count');
+            const appList = document.getElementById('app-list');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const loadMoreBtn = document.getElementById('load-more');
+            const detailPage = document.getElementById('detail-page');
+            const backBtn = document.getElementById('back-btn');
+            const detailTitle = document.getElementById('detail-title');
+            const detailContent = document.getElementById('detail-content');
+            
+            let currentKeyword = '';
+            let currentStart = 0;
+            const countPerPage = 10;
+            const DEFAULT_APP_ICON = 'https://via.placeholder.com/80?text=App+Icon';
+            
+            // 搜索按钮点击事件
+            searchBtn.addEventListener('click', function() {
+                const keyword = searchInput.value.trim();
+                if (keyword) {
+                    currentKeyword = keyword;
+                    currentStart = 0;
+                    searchApps(keyword, 0);
+                }
+            });
+            
+            // 回车键搜索
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const keyword = searchInput.value.trim();
+                    if (keyword) {
+                        currentKeyword = keyword;
+                        currentStart = 0;
+                        searchApps(keyword, 0);
+                    }
+                }
+            });
+            
+            // 加载更多按钮点击事件
+            loadMoreBtn.addEventListener('click', function() {
+                searchApps(currentKeyword, currentStart);
+            });
+            
+            // 返回按钮点击事件
+            backBtn.addEventListener('click', function() {
+                detailPage.style.display = 'none';
+            });
+            
+            // 搜索软件函数
+            function searchApps(keyword, start) {
+                // 显示加载中，隐藏其他元素
+                loading.classList.remove('hidden');
+                error.classList.add('hidden');
+                
+                if (start === 0) {
+                    initialMessage.classList.add('hidden');
+                    searchResults.classList.remove('hidden');
+                    appList.innerHTML = '';
+                }
+                
+                // 构建API URL - 使用CORS代理
+                const apiUrl = `http://search.huluxia.com/game/search/ANDROID/4.1.5?platform=2&gkey=000000&app_version=4.3.1.2&versioncode=389&market_id=tool_web&_key=C7AB99886E7C6CE12C608735D6D3C4748C280FCA82A3DFF0FE054AB60F50507A7C681703BDB65CE7D5D67C08027699A2C3EA0AFC04BC4D53&device_code=%5Bd%5D31ec2393-059c-4b98-b708-50b59899db0c&phone_brand_type=VO&hlx_imei=&hlx_android_id=a3788f49dd845e21&hlx_oaid=62126628840e753e6d211e525c693e02105b8d97980caa890c4063a24e98321d&start=${start}&count=${countPerPage}&keyword=${encodeURIComponent(keyword)}`;
+                
+                // 使用CORS代理服务
+                const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(apiUrl);
+                
+                // 使用fetch API获取数据
+                fetch(proxyUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('网络响应不正常');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        loading.classList.add('hidden');
+                        
+                        if (data.status !== 1) {
+                            throw new Error(data.msg || '搜索失败');
+                        }
+                        
+                        // 更新起始位置
+                        currentStart = parseInt(data.start) + data.gameapps.length;
+                        
+                        // 显示结果数量
+                        if (start === 0) {
+                            resultCount.textContent = `找到 ${data.gameapps.length} 个结果`;
+                        }
+                        
+                        // 显示或隐藏"加载更多"按钮
+                        loadMoreBtn.classList.toggle('hidden', data.more !== 1);
+                        
+                        // 渲染搜索结果
+                        renderApps(data.gameapps);
+                    })
+                    .catch(err => {
+                        loading.classList.add('hidden');
+                        error.textContent = '请求失败: ' + err.message;
+                        error.classList.remove('hidden');
+                        
+                        if (start === 0) {
+                            searchResults.classList.add('hidden');
+                            initialMessage.classList.remove('hidden');
+                        }
+                        
+                        console.error('Error:', err);
+                    });
+            }
+            
+            // 获取安全的图片URL
+            function getSafeImageUrl(url) {
+                if (!url) return DEFAULT_APP_ICON;
+                try {
+                    // 使用图片代理服务解决可能的跨域问题
+                    return `https://images.weserv.nl/?url=${encodeURIComponent(url.replace(/^https?:\/\//, ''))}&w=80&h=80&fit=contain`;
+                } catch (e) {
+                    return DEFAULT_APP_ICON;
+                }
+            }
+            
+            // 获取软件详情
+            function getAppDetail(appId) {
+                loading.classList.remove('hidden');
+                detailContent.innerHTML = '';
+                
+                // 构建详情API URL
+                const detailApiUrl = `http://tools.huluxia.com:80/game/detail/ANDROID/4.1.5?platform=2&gkey=000000&app_version=4.3.1.2&versioncode=389&market_id=tool_web&_key=C7AB99886E7C6CE12C608735D6D3C4748C280FCA82A3DFF0FE054AB60F50507A7C681703BDB65CE7D5D67C08027699A2C3EA0AFC04BC4D53&device_code=%5Bd%5D31ec2393-059c-4b98-b708-50b59899db0c&phone_brand_type=VO&hlx_imei=&hlx_android_id=a3788f49dd845e21&hlx_oaid=62126628840e753e6d211e525c693e02105b8d97980caa890c4063a24e98321d&app_id=${appId}`;
+                
+                // 使用CORS代理服务
+                const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(detailApiUrl);
+                
+                fetch(proxyUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('网络响应不正常');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        loading.classList.add('hidden');
+                        detailPage.style.display = 'block';
+                        
+                        if (data.status !== 1) {
+                            throw new Error(data.msg || '获取详情失败');
+                        }
+                        
+                        // 渲染详情内容
+                        renderAppDetail(data.gameinfo);
+                    })
+                    .catch(err => {
+                        loading.classList.add('hidden');
+                        detailContent.innerHTML = `<div class="error">获取详情失败: ${err.message}</div>`;
+                        console.error('Error:', err);
+                    });
+            }
+            
+            // 渲染应用列表
+            function renderApps(apps) {
+                if (apps.length === 0 && currentStart === 0) {
+                    appList.innerHTML = '<div style="text-align: center; padding: 30px; color: #666;">没有找到相关软件</div>';
+                    return;
+                }
+                
+                apps.forEach(app => {
+                    const appCard = document.createElement('div');
+                    appCard.className = 'app-card';
+                    appCard.dataset.appId = app.appid; // 存储appid
+                    
+                    // 点击卡片获取详情
+                    appCard.addEventListener('click', function() {
+                        getAppDetail(app.appid);
+                    });
+                    
+                    // 应用图标容器
+                    const appIconContainer = document.createElement('div');
+                    appIconContainer.className = 'app-icon-container';
+                    
+                    // 应用图标
+                    const appIcon = document.createElement('img');
+                    appIcon.className = 'app-icon';
+                    appIcon.alt = app.apptitle;
+                    
+                    // 图标占位符
+                    const iconPlaceholder = document.createElement('div');
+                    iconPlaceholder.className = 'icon-placeholder';
+                    iconPlaceholder.textContent = '图标加载中...';
+                    
+                    // 图片加载处理
+                    const imageUrl = getSafeImageUrl(app.applogo);
+                    const img = new Image();
+                    img.onload = function() {
+                        appIcon.src = imageUrl;
+                        iconPlaceholder.style.display = 'none';
+                    };
+                    img.onerror = function() {
+                        iconPlaceholder.textContent = '图标加载失败';
+                        iconPlaceholder.style.backgroundColor = '#ffebee';
+                        appIcon.src = DEFAULT_APP_ICON;
+                    };
+                    img.src = imageUrl;
+                    
+                    appIconContainer.appendChild(appIcon);
+                    appIconContainer.appendChild(iconPlaceholder);
+                    
+                    // 应用信息容器
+                    const appInfo = document.createElement('div');
+                    appInfo.className = 'app-info';
+                    
+                    // 应用标题
+                    const appTitle = document.createElement('h2');
+                    appTitle.className = 'app-title';
+                    appTitle.textContent = app.apptitle;
+                    
+                    // 应用元信息
+                    const appMeta = document.createElement('div');
+                    appMeta.className = 'app-meta';
+                    
+                    const appSize = document.createElement('span');
+                    appSize.textContent = `大小: ${app.appsize}MB`;
+                    
+                    const appVersion = document.createElement('span');
+                    appVersion.textContent = `版本: ${app.appversion}`;
+                    
+                    const appSystem = document.createElement('span');
+                    appSystem.textContent = `系统: ${app.system}`;
+                    
+                    appMeta.appendChild(appSize);
+                    appMeta.appendChild(appVersion);
+                    appMeta.appendChild(appSystem);
+                    
+                    // 应用类型
+                    const appTypes = document.createElement('div');
+                    appTypes.className = 'app-types';
+                    
+                    if (app.appTypes && app.appTypes.length > 0) {
+                        app.appTypes.forEach(type => {
+                            const typeSpan = document.createElement('span');
+                            typeSpan.className = 'type';
+                            typeSpan.textContent = type.type_name;
+                            appTypes.appendChild(typeSpan);
+                        });
+                    }
+                    
+                    // 下载按钮容器
+                    const appFooter = document.createElement('div');
+                    appFooter.className = 'app-footer';
+                    
+                    // 下载按钮
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'download-btn';
+                    downloadBtn.textContent = '下载';
+                    // 阻止事件冒泡，避免触发卡片点击事件
+                    downloadBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (app.localurl && app.localurl.url) {
+                            window.open(app.localurl.url, '_blank');
+                        } else {
+                            alert('暂无下载链接');
+                        }
+                    });
+                    
+                    appFooter.appendChild(downloadBtn);
+                    
+                    // 组装应用信息
+                    appInfo.appendChild(appTitle);
+                    appInfo.appendChild(appMeta);
+                    appInfo.appendChild(appTypes);
+                    appInfo.appendChild(appFooter);
+                    
+                    // 组装应用卡片
+                    appCard.appendChild(appIconContainer);
+                    appCard.appendChild(appInfo);
+                    
+                    // 添加到列表
+                    appList.appendChild(appCard);
+                });
+            }
+            
+            // 渲染应用详情
+            function renderAppDetail(appDetail) {
+                detailTitle.textContent = appDetail.apptitle;
+                
+                let html = `
+                    <div class="app-detail-row">
+                        <img src="${getSafeImageUrl(appDetail.applogo)}" class="app-detail-image" alt="${appDetail.apptitle}">
+                        <div class="app-detail-info">
+                            <div class="app-detail-meta">
+                                <p><strong>版本:</strong> ${appDetail.appversion}</p>
+                                <p><strong>大小:</strong> ${appDetail.appsize}MB</p>
+                                <p><strong>系统要求:</strong> ${appDetail.system}</p>
+                                <p><strong>类别:</strong> ${appDetail.categoryname}</p>
+                            </div>
+                            <button class="download-btn" id="detail-download-btn">下载</button>
+                        </div>
+                    </div>
+                    <div class="app-detail-desc">
+                        <h3>应用描述</h3>
+                        <div>${appDetail.appdesc || '暂无描述'}</div>
+                    </div>
+                `;
+                
+                // 添加更新日志
+                if (appDetail.releaseNotes) {
+                    html += `
+                        <div class="app-detail-desc">
+                            <h3>更新内容</h3>
+                            <div>${appDetail.releaseNotes}</div>
+                        </div>
+                    `;
+                }
+                
+                // 添加截图
+                if (appDetail.imageresource && appDetail.imageresource.length > 0) {
+                    html += `
+                        <div class="app-detail-desc">
+                            <h3>应用截图</h3>
+                            <div class="app-screenshots">
+                                ${appDetail.imageresource.map(img => `
+                                    <img src="${getSafeImageUrl(img)}" class="screenshot" alt="应用截图">
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                detailContent.innerHTML = html;
+                
+                // 添加下载按钮事件
+                const detailDownloadBtn = document.getElementById('detail-download-btn');
+                if (detailDownloadBtn && appDetail.localurl && appDetail.localurl.url) {
+                    detailDownloadBtn.addEventListener('click', function() {
+                        window.open(appDetail.localurl.url, '_blank');
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
