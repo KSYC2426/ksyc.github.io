@@ -1,104 +1,452 @@
-<!DOCTYPE HTML>
-
-
-<html>
-	<head>
-		<title>酷尘官方网站</title>
-		<link rel="stylesheet" href="style.css"> <!-- 引入CSS文件 -->
-		    <meta name="description" content="你的笑,是大海拥抱海岛的笑,是星星跳跃浪花的笑,是椰树遮掩椰果的笑。你笑着,使黑夜奔逃。"/>
-    <meta name="keywords" content="懂得珍惜，才配拥有"/>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-	</head>
-	<body>
-
-		<!-- Wrapper -->
-			<div id="wrapper">
-
-				<!-- Header -->
-					<header id="header">
-						<div class="logo">
-							<img src="images/pengzai.png" class="logo">
-						</div>
-						<div class="content">
-							<div class="inner">
-								<h1>Ks丶余尘</h1>
-        						<p>懂得珍惜，才配拥有！</p>
-							</div>
-						</div>
-						<nav>
-							<ul>
-								<li><a href="#intro">个人简介</a></li>
-								<li><a href="kcrj/index.html">酷尘软件</a></li>
-								<li><a href="wdtphy/index.html">图片画廊</a></li>
-								<li><a href="zxgn/index.html">在线功能</a></li>
-							</ul>
-						</nav>
-					</header>
-
-				<!-- Main -->
-					<div id="main">
-
-						<!-- Intro -->
-							<article id="intro">
-								<h2 class="major">Intro</h2>
-								<span class="image main"><img src="images/pic01.jpg" alt="" /></span>
-								<p>Ks丶余尘</p>
-								<p>自初中起，便对知识充满了强烈的渴望，积极主动地去涉猎学习各式各样的技能。在计算机领域，有着一点的经验和一定的能力积累。擅长绘画，能够用画笔勾勒出心中的美好图景；也懂一点建模技能，通过虚拟的方式构建出独特的三维世界。同时还熟悉简单的 html 代码，能够运用代码为网页赋予基础的形态与功能。在移动应用开发方面，也有所钻研，掌握了一定的手机 iapp 开发，尝试将自己的创意转化为实用的应用程序。如今就读于“贵州民族大学”，在这所充满活力与机遇的学府中继续深造，不断探索和拓展自己的知识边界，期待在未来能够凭借所学，创造出更多有价值的成果。</p>
-								<p>QQ：2426270652</p>
-							</article>
-
-
-
-
-						<!-- Elements -->
-							<article id="elements">
-								<h2 class="major">Elements</h2>
-
-
-
-								<section>
-
-									<h4>Icons</h4>
-									<ul class="icons">
-										<li><a href="#" class="icon fa-twitter"><span class="label">Twitter</span></a></li>
-										<li><a href="#" class="icon fa-facebook"><span class="label">Facebook</span></a></li>
-										<li><a href="#" class="icon fa-instagram"><span class="label">Instagram</span></a></li>
-										<li><a href="#" class="icon fa-github"><span class="label">Github</span></a></li>
-									</ul>
-
-									<h4>Actions</h4>
-									<ul class="actions">
-										<li><a href="#" class="button special">Default</a></li>
-										<li><a href="#" class="button">Default</a></li>
-									</ul>
-									<ul class="actions vertical">
-										<li><a href="#" class="button special">Default</a></li>
-										<li><a href="#" class="button">Default</a></li>
-									</ul>
-								</section>
-
-							</article>
-
-					</div>
-
-				<!-- Footer -->
-					<footer id="footer">
-						<p class="copyright">&copy; Untitled. Design: <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=roU4KSYvgO1sRAG9kvGgeiDC6QL6lz33&authKey=4TBoBPWfrC8EvqwB7WImoz9kBWezPmJvWdf5qgvm9eUjGK500SJ3%2FrVfwqvFiM%2Fq&noverify=0&group_code=764376546">酷尘工作室</a>.</p>
-					</footer>
-
-			</div>
-
-		<!-- BG -->
-			<div id="bg"></div>
-
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/skel.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-
-	</body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酷尘官方主页</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --text-color: #333;
+            --text-light: #7f8c8d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo span {
+            color: var(--secondary-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 2rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .features {
+            padding: 5rem 0;
+            background-color: var(--light-color);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--dark-color);
+        }
+        
+        .section-title p {
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            text-align: center;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+        
+        .about {
+            padding: 5rem 0;
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        
+        .about-image img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .about-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+        }
+        
+        .about-text p {
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+        
+        .online-features {
+            padding: 5rem 0;
+            background-color: var(--light-color);
+        }
+        
+        .feature-card a {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .feature-card a:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+        
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-column ul li a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column ul li a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #bdc3c7;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .about-image {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <a href="#" class="logo">酷<span>尘</span></a>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#features">产品优势</a></li>
+                    <li><a href="#about">关于作者</a></li>
+                    <li><a href="#online-features">在线功能</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="container">
+            <h1>创新解决方案 为您的事业赋能</h1>
+            <p>我们致力于提供最优质的产品和服务，帮助您的业务在数字时代蓬勃发展。</p>
+            <a href="kcrj/index.html" class="btn">下载软件</a>
+        </div>
+    </section>
+    
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>我们的优势</h2>
+                <p>我们提供全方位的专业服务，满足您的各种需求</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>高效性能</h3>
+                    <p>我们的解决方案经过优化，确保最高效的运行速度和响应能力。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>安全保障</h3>
+                    <p>采用最先进的安全技术，保护您的数据和隐私安全。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💡</div>
+                    <h3>创新技术</h3>
+                    <p>持续研发创新技术，为您提供前沿的解决方案。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>关于作者</h2>
+                    <p>作者是一个独立开发的小白，专注于为个人提供数字化转型解决方案。多年来，经过不断的学习探索，实现了业务增长和效率提升。</p>
+                    <p>我们的团队由作者个人组成，拥有基本的实战经验和创新能力。我们相信技术应该服务于人，创造真正的价值。</p>
+                    <a href="https://qm.qq.com/q/Cf1MQdJsbY" class="btn">联系作者</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="online-features" id="online-features">
+        <div class="container">
+            <div class="section-title">
+                <h2>在线功能</h2>
+                <p>体验我们提供的丰富在线服务，随时随地满足您的需求</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>kg音乐解析</h3>
+                    <p>随时获取kg音乐并且下载。</p>
+                    <a href="zxgn/music/kgyy.html">立即使用</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>QQ音乐解析</h3>
+                    <p>获取QQ音乐下载支持在线听</p>
+                    <a href="zxgn/music/qqmusic.html">立即使用</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>葫芦侠</h3>
+                    <p>在线下载葫芦侠的所有游戏与软件。</p>
+                    <a href="zxgn/hlx/index.html">立即使用</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>文件上传</h3>
+                    <p>支持上传文件到我们的服务器。</p>
+                    <a href="upload.php">立即使用</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                    <img src="https://music.moekoe.cn/ico.png" alt="图标" width="40" height="40">
+                    </div>
+                    <h3>第三方酷狗概念版</h3>
+                    <p>与酷狗音乐同步，免费听音乐的软件</p>
+                    <a href="https://music.moekoe.cn/">前往网站</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                    <img src="https://static.itellyou.cn/images/logo.png" alt="图标" width="40" height="40">
+                    </div>
+                    <h3>电脑系统安装</h3>
+                    <p>正版电脑系统下载网站</p>
+                    <a href="https://next.itellyou.cn/">前往网站</a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                    <img src="https://www.officetool.plus/images/office-tool-plus-logo-large.webp" alt="图标" width="40" height="40">
+                    </div>
+                    <h3>办公软件Office套件</h3>
+                    <p>一键部署office，一键免费激活的软件网站</p>
+                    <a href="https://otp.landian.vip/zh-cn/">前往网站</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>酷尘科技</h3>
+                    <p>创新科技，创造价值。我们致力于为客户提供最优质的解决方案。</p>
+                    <div class="social-links">
+                        <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=roU4KSYvgO1sRAG9kvGgeiDC6QL6lz33&authKey=4TBoBPWfrC8EvqwB7WImoz9kBWezPmJvWdf5qgvm9eUjGK500SJ3%2FrVfwqvFiM%2Fq&noverify=0&group_code=764376546">群聊</a>
+                        <a href="yhfk/index.html">反馈</a>
+                        <a href="kcrj/index.html">下载</a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>快速链接</h3>
+                    <ul>
+                        <li><a href="#">首页</a></li>
+                        <li><a href="#features">产品优势</a></li>
+                        <li><a href="#about">关于作者</a></li>
+                        <li><a href="#online-features">在线功能</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>联系方式</h3>
+                    <ul>
+                        <li>QQ: 2426270652</li>
+                        <li>邮箱: 2426270652@qq.com</li>
+                        <li>地址: XX民族大学 学生宿舍</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 酷尘科技. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+</body>
 </html>
