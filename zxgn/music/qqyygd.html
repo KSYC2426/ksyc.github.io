@@ -202,6 +202,29 @@
             color: #888;
             font-size: 16px;
         }
+        .play-mode {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .mode-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #888;
+            transition: color 0.3s;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .mode-btn.active {
+            color: #31c27c;
+            background-color: rgba(49, 194, 124, 0.1);
+        }
+        .mode-btn:hover {
+            color: #31c27c;
+        }
         .player-controls {
             display: flex;
             justify-content: center;
@@ -336,6 +359,11 @@
                     <div class="player-title" id="player-title"></div>
                     <div class="player-singer" id="player-singer"></div>
                 </div>
+                <div class="play-mode">
+                    <button class="mode-btn active" id="order-mode" title="顺序播放">🔁</button>
+                    <button class="mode-btn" id="loop-mode" title="单曲循环">🔂</button>
+                    <button class="mode-btn" id="random-mode" title="随机播放">🔀</button>
+                </div>
                 <div class="player-controls">
                     <button class="control-btn" id="prev-btn">⏮</button>
                     <button class="control-btn play-pause" id="play-pause-btn">▶</button>
@@ -381,6 +409,9 @@
         const downloadProgress = document.getElementById('download-progress');
         const progressBar = document.getElementById('progress-bar');
         const progressText = document.getElementById('progress-text');
+        const orderModeBtn = document.getElementById('order-mode');
+        const loopModeBtn = document.getElementById('loop-mode');
+        const randomModeBtn = document.getElementById('random-mode');
         
         // 当前状态
         let currentPlaylistId = null;
@@ -390,6 +421,7 @@
         let isPlayingAll = false;
         let downloadQueue = [];
         let downloadedCount = 0;
+        let playMode = 'order'; // 'order', 'loop', 'random'
         
         // 查询歌单
         searchBtn.addEventListener('click', () => {
@@ -424,7 +456,13 @@
             if (currentSongs.length === 0) return;
             
             isPlayingAll = true;
-            currentSongIndex = 0;
+            
+            if (playMode === 'random') {
+                currentSongIndex = Math.floor(Math.random() * currentSongs.length);
+            } else {
+                currentSongIndex = 0;
+            }
+            
             playSong(currentSongs[currentSongIndex]);
         });
         
@@ -458,10 +496,20 @@
         
         // 上一首
         prevBtn.addEventListener('click', () => {
-            if (currentSongIndex > 0) {
+            if (playMode === 'random') {
+                let prevIndex;
+                do {
+                    prevIndex = Math.floor(Math.random() * currentSongs.length);
+                } while (prevIndex === currentSongIndex && currentSongs.length > 1);
+                
+                currentSongIndex = prevIndex;
+            } else if (currentSongIndex > 0) {
                 currentSongIndex--;
-                playSong(currentSongs[currentSongIndex]);
+            } else if (playMode === 'order') {
+                currentSongIndex = currentSongs.length - 1;
             }
+            
+            playSong(currentSongs[currentSongIndex]);
         });
         
         // 播放/暂停
@@ -477,11 +525,52 @@
         
         // 下一首
         nextBtn.addEventListener('click', () => {
-            if (currentSongIndex < currentSongs.length - 1) {
+            if (playMode === 'random') {
+                let nextIndex;
+                do {
+                    nextIndex = Math.floor(Math.random() * currentSongs.length);
+                } while (nextIndex === currentSongIndex && currentSongs.length > 1);
+                
+                currentSongIndex = nextIndex;
+            } else if (currentSongIndex < currentSongs.length - 1) {
                 currentSongIndex++;
-                playSong(currentSongs[currentSongIndex]);
+            } else if (playMode === 'order') {
+                currentSongIndex = 0;
             }
+            
+            playSong(currentSongs[currentSongIndex]);
         });
+        
+        // 播放模式切换
+        orderModeBtn.addEventListener('click', () => {
+            setPlayMode('order');
+        });
+        
+        loopModeBtn.addEventListener('click', () => {
+            setPlayMode('loop');
+        });
+        
+        randomModeBtn.addEventListener('click', () => {
+            setPlayMode('random');
+        });
+        
+        // 设置播放模式
+        function setPlayMode(mode) {
+            playMode = mode;
+            
+            // 更新按钮状态
+            orderModeBtn.classList.remove('active');
+            loopModeBtn.classList.remove('active');
+            randomModeBtn.classList.remove('active');
+            
+            if (mode === 'order') {
+                orderModeBtn.classList.add('active');
+            } else if (mode === 'loop') {
+                loopModeBtn.classList.add('active');
+            } else if (mode === 'random') {
+                randomModeBtn.classList.add('active');
+            }
+        }
         
         // 显示错误信息
         function showError(message) {
@@ -679,6 +768,12 @@
             audioPlayer.load();
             playPauseBtn.textContent = '⏸';
             
+            // 清除之前的事件监听器
+            audioPlayer.removeEventListener('ended', handleSongEnded);
+            
+            // 添加新的事件监听器
+            audioPlayer.addEventListener('ended', handleSongEnded);
+            
             // 开始播放
             audioPlayer.play().then(() => {
                 playerCover.classList.add('playing');
@@ -696,14 +791,35 @@
                 playerCover.classList.remove('playing');
                 playPauseBtn.textContent = '▶';
             });
-            
-            // 歌曲结束自动播放下一首
-            audioPlayer.addEventListener('ended', () => {
-                if (isPlayingAll && currentSongIndex < currentSongs.length - 1) {
+        }
+        
+        // 处理歌曲结束
+        function handleSongEnded() {
+            if (playMode === 'loop') {
+                // 单曲循环，重新播放当前歌曲
+                playSong(currentSongs[currentSongIndex]);
+            } else if (playMode === 'random') {
+                // 随机播放
+                let nextIndex;
+                do {
+                    nextIndex = Math.floor(Math.random() * currentSongs.length);
+                } while (nextIndex === currentSongIndex && currentSongs.length > 1);
+                
+                currentSongIndex = nextIndex;
+                playSong(currentSongs[currentSongIndex]);
+            } else {
+                // 顺序播放
+                if (currentSongIndex < currentSongs.length - 1) {
                     currentSongIndex++;
                     playSong(currentSongs[currentSongIndex]);
+                } else {
+                    // 如果是最后一首，根据设置决定是否停止或循环
+                    if (isPlayingAll) {
+                        currentSongIndex = 0;
+                        playSong(currentSongs[currentSongIndex]);
+                    }
                 }
-            });
+            }
         }
         
         // 下载下一首歌曲
