@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酷狗概念版音乐下载器 - 使用教程</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 50px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: none;
+            cursor: pointer;
+        }
+        
+        .download-btn:hover {
+            background: #ff5252;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+        
+        .download-btn:active {
+            transform: translateY(0);
+        }
+        
+        .download-btn i {
+            margin-right: 10px;
+        }
+        
+        .tutorial-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .step-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        .step-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .card-header {
+            background: #4a69bd;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .card-content {
+            padding: 25px;
+        }
+        
+        .step-img {
+            width: 100%;
+            height: 200px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-weight: bold;
+            border: 2px dashed #dee2e6;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .step-img:hover {
+            border-color: #4a69bd;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .step-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .step-description {
+            color: #495057;
+            font-size: 1rem;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #4a69bd;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 70px;
+            color: white;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .img-not-found {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .img-not-found i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #adb5bd;
+        }
+        
+        /* 图片放大模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            display: block;
+            max-width: 90%;
+            max-height: 80%;
+            margin: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+            animation: zoom 0.3s ease;
+        }
+        
+        @keyframes zoom {
+            from {transform: scale(0.9); opacity: 0;}
+            to {transform: scale(1); opacity: 1;}
+        }
+        
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .close:hover {
+            color: #ff6b6b;
+        }
+        
+        .caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #ccc;
+            padding: 10px 0;
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .tutorial-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .modal-content {
+                max-width: 95%;
+            }
+            
+            .close {
+                top: 10px;
+                right: 15px;
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>酷狗概念版音乐下载器配置教程</h1>
+            <p class="subtitle">注意：运行这些html需要前置：电脑需要安装有“第三方酷狗概念版”也就是本官网的那个，软件是打开状态才能运行这些html，软件可以免费听音乐，不能下载音乐，本项目就是为了下载音乐。只支持电脑。</p>
+            
+            <a href="酷狗概念版音乐下载器.zip" class="download-btn" download>
+                <i class="fas fa-download"></i>下载项目
+            </a>
+        </header>
+        
+        <div class="tutorial-container">
+            <div class="step-card">
+                <div class="card-header">步骤 1: 用户登录</div>
+                <div class="card-content">
+                    <div class="step-img" onclick="openModal('0.png', '登录界面截图')">
+                        <img src="0.png" alt="登录界面截图" onerror="handleImageError(this, 0)">
+                        <div class="img-not-found" id="img-error-0" style="display: none;">
+                            <i class="fas fa-image"></i>
+                            <span>0.png - 点击查看示例</span>
+                        </div>
+                    </div>
+                    <p class="step-description">
+                        <span class="step-number">1</span>
+                        打开"账号登录.html"后，您将看到登录界面。支持账号密码登录、验证码登录和扫码(暂时不可用)登录三种方式。
+                        输入您的酷狗账号和密码，点击登录获取Token和UserID。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="step-card">
+                <div class="card-header">步骤 2: 解压压缩包</div>
+                <div class="card-content">
+                    <div class="step-img" onclick="openModal('1.png', '解压压缩包')">
+                        <img src="1.png" alt="解压压缩包" onerror="handleImageError(this, '0-2')">
+                        <div class="img-not-found" id="img-error-0-2" style="display: none;">
+                            <i class="fas fa-image"></i>
+                            <span>0.png - 点击查看示例</span>
+                        </div>
+                    </div>
+                    <p class="step-description">
+                        <span class="step-number">2</span>
+                        把下载的项目进行解压获取所有的html文件，然后替换文件里面Token和UserID。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="step-card">
+                <div class="card-header">步骤 3: 用笔记本打开</div>
+                <div class="card-content">
+                    <div class="step-img" onclick="openModal('2.png', '用笔记本打开')">
+                        <img src="2.png" alt="用笔记本打开" onerror="handleImageError(this, 1)">
+                        <div class="img-not-found" id="img-error-1" style="display: none;">
+                            <i class="fas fa-image"></i>
+                            <span>1.png - 点击查看示例</span>
+                        </div>
+                    </div>
+                    <p class="step-description">
+                        <span class="step-number">3</span>
+                        在文件管理界面，右键文件使用笔记本编辑，注意：需要替换修改的文件除了“账号登录.html”，其他的都需要修改。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="step-card">
+                <div class="card-header">步骤 4: Token替换</div>
+                <div class="card-content">
+                    <div class="step-img" onclick="openModal('3.png', 'Token替换')">
+                        <img src="3.png" alt="Token替换" onerror="handleImageError(this, 3)">
+                        <div class="img-not-found" id="img-error-3" style="display: none;">
+                            <i class="fas fa-image"></i>
+                            <span>3.png - 点击查看示例</span>
+                        </div>
+                    </div>
+                    <p class="step-description">
+                        <span class="step-number">4</span>
+                        在代码界面，选择Token的代码或者UserID的代码。然后点击左上角的“编辑”按钮。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="step-card">
+                <div class="card-header">步骤 5: Token替换</div>
+                <div class="card-content">
+                    <div class="step-img" onclick="openModal('4.png', 'Token替换界面')">
+                        <img src="4.png" alt="Token替换界面" onerror="handleImageError(this, 5)">
+                        <div class="img-not-found" id="img-error-5" style="display: none;">
+                            <i class="fas fa-image"></i>
+                            <span>5.png - 点击查看示例</span>
+                        </div>
+                    </div>
+                    <p class="step-description">
+                        <span class="step-number">5</span>
+                        点击“编辑”按钮之后，点击替换。
+                    </p>
+                </div>
+            </div>
+            
+            <div class="step-card">
+                <div class="card-header">步骤 6: 全部替换</div>
+                <div class="card-content">
+                    <div class="step-img" onclick="openModal('5.png', '全部替换')">
+                         <img src="5.png" alt="Token替换界面" onerror="handleImageError(this, 5)">
+                        <div class="img-not-found" id="img-error-5" style="display: none;">
+                            <i class="fas fa-image"></i>
+                            <span>5.png - 点击查看示例</span>
+                        </div>
+                    </div>
+                    <p class="step-description">
+                        <span class="step-number">6</span>
+                        在下面的输入框粘贴需要替换的Token或者UserID即可，然后点击“全部替换”。
+                        注意：Token和UserID都需要替换，然后保存退出。
+                        再使用浏览器打开文件就可以使用了。
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 酷狗概念版音乐下载器使用教程 | 本教程仅供参考学习</p>
+        </footer>
+    </div>
+
+    <!-- 图片放大模态框 -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div id="caption" class="caption"></div>
+    </div>
+
+    <script>
+        // 为下载按钮添加动画效果
+        document.querySelector('.download-btn').addEventListener('click', function(e) {
+            e.target.classList.add('downloading');
+            setTimeout(() => {
+                e.target.classList.remove('downloading');
+                alert('下载已开始！如果遇到问题，请确保"酷狗概念版音乐下载器.zip"文件存在于同一目录中。');
+            }, 1000);
+        });
+        
+        // 图片错误处理
+        function handleImageError(img, id) {
+            img.style.display = 'none';
+            const errorDiv = img.nextElementSibling;
+            if (errorDiv && errorDiv.classList.contains('img-not-found')) {
+                errorDiv.style.display = 'flex';
+                // 为错误提示添加点击事件
+                errorDiv.onclick = function() {
+                    openModal(img.alt);
+                };
+            }
+        }
+        
+        // 检查图片是否存在
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('.step-img img');
+            images.forEach(img => {
+                // 检查图片是否加载成功
+                if (img.complete && img.naturalHeight === 0) {
+                    img.style.display = 'none';
+                    const errorDiv = img.nextElementSibling;
+                    if (errorDiv && errorDiv.classList.contains('img-not-found')) {
+                        errorDiv.style.display = 'flex';
+                    }
+                }
+            });
+        });
+        
+        // 图片放大功能
+        function openModal(src, alt) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            const captionText = document.getElementById("caption");
+            
+            modal.classList.add("show");
+            modalImg.src = src;
+            captionText.innerHTML = alt;
+            
+            // 如果图片不存在，显示默认内容
+            if (!src) {
+                modalImg.style.display = "none";
+                captionText.innerHTML = "图片示例 - " + alt;
+            } else {
+                modalImg.style.display = "block";
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById("imageModal").classList.remove("show");
+        }
+        
+        // 点击模态框背景关闭
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
