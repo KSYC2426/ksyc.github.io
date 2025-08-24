@@ -311,6 +311,47 @@
             font-size: 14px;
             color: #888;
         }
+        /* 修改歌词区域样式为单行显示 */
+        .lyrics-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .lyrics-line {
+            padding: 10px 0;
+            color: #666;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        .lyrics-line.active {
+            color: #31c27c;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .player-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        .player-left {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+        }
+        .player-right {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
     </style>
 </head>
 <body>
@@ -353,23 +394,33 @@
             <div class="player-header">
                 <a href="#" class="back-btn" id="back-to-songs">← 返回歌曲列表</a>
             </div>
-            <div class="player-content">
-                <img src="" alt="封面" class="player-cover" id="player-cover">
-                <div class="player-info">
-                    <div class="player-title" id="player-title"></div>
-                    <div class="player-singer" id="player-singer"></div>
+            <div class="player-wrapper">
+                <div class="player-left">
+                    <div class="player-content">
+                        <img src="" alt="封面" class="player-cover" id="player-cover">
+                        <div class="player-info">
+                            <div class="player-title" id="player-title"></div>
+                            <div class="player-singer" id="player-singer"></div>
+                        </div>
+                        <div class="play-mode">
+                            <button class="mode-btn active" id="order-mode" title="顺序播放">🔁</button>
+                            <button class="mode-btn" id="loop-mode" title="单曲循环">🔂</button>
+                            <button class="mode-btn" id="random-mode" title="随机播放">🔀</button>
+                        </div>
+                        <div class="player-controls">
+                            <button class="control-btn" id="prev-btn">⏮</button>
+                            <button class="control-btn play-pause" id="play-pause-btn">▶</button>
+                            <button class="control-btn" id="next-btn">⏭</button>
+                        </div>
+                        <audio controls id="audio-player"></audio>
+                    </div>
                 </div>
-                <div class="play-mode">
-                    <button class="mode-btn active" id="order-mode" title="顺序播放">🔁</button>
-                    <button class="mode-btn" id="loop-mode" title="单曲循环">🔂</button>
-                    <button class="mode-btn" id="random-mode" title="随机播放">🔀</button>
+                <div class="player-right">
+                    <h3>歌词</h3>
+                    <div class="lyrics-container" id="lyrics-container">
+                        <div class="lyrics-line" id="current-lyric">暂无歌词</div>
+                    </div>
                 </div>
-                <div class="player-controls">
-                    <button class="control-btn" id="prev-btn">⏮</button>
-                    <button class="control-btn play-pause" id="play-pause-btn">▶</button>
-                    <button class="control-btn" id="next-btn">⏭</button>
-                </div>
-                <audio controls id="audio-player"></audio>
             </div>
             <div class="download-progress" id="download-progress">
                 <div class="progress-bar">
@@ -412,6 +463,8 @@
         const orderModeBtn = document.getElementById('order-mode');
         const loopModeBtn = document.getElementById('loop-mode');
         const randomModeBtn = document.getElementById('random-mode');
+        const lyricsContainer = document.getElementById('lyrics-container');
+        const currentLyric = document.getElementById('current-lyric');
         
         // 当前状态
         let currentPlaylistId = null;
@@ -422,6 +475,8 @@
         let downloadQueue = [];
         let downloadedCount = 0;
         let playMode = 'order'; // 'order', 'loop', 'random'
+        let lyricsData = [];
+        let lyricsInterval = null;
         
         // 查询歌单
         searchBtn.addEventListener('click', () => {
@@ -600,6 +655,18 @@
             currentSongIndex = -1;
             isPlayingAll = false;
             downloadProgress.style.display = 'none';
+            
+            // 清除歌词
+            clearLyricsInterval();
+            currentLyric.textContent = '暂无歌词';
+        }
+        
+        // 清除歌词定时器
+        function clearLyricsInterval() {
+            if (lyricsInterval) {
+                clearInterval(lyricsInterval);
+                lyricsInterval = null;
+            }
         }
         
         // 更新选中的歌曲
@@ -749,6 +816,31 @@
                     throw new Error('获取歌曲信息失败');
                 }
                 
+                // 如果song_url为空，使用二次API获取
+                if (!data.song_url && data.song_mid) {
+                    const secondResponse = await fetch(`https://api.jkyai.top/API/yyjhss.php?id=${data.song_mid}&type=qq`);
+                    const secondData = await secondResponse.json();
+                    
+                    if (secondData.code === 1 && secondData.data.url) {
+                        data.song_url = secondData.data.url;
+                        data.song_cover = secondData.data.pic || data.song_cover;
+                        
+                        // 获取歌词
+                        if (secondData.data.lrc) {
+                            parseLyrics(secondData.data.lrc);
+                        } else {
+                            currentLyric.textContent = '暂无歌词';
+                        }
+                    } else {
+                        throw new Error('获取音乐链接失败');
+                    }
+                } else if (data.song_url) {
+                    // 如果有直接的音乐链接，但没有歌词
+                    currentLyric.textContent = '暂无歌词';
+                } else {
+                    throw new Error('无法获取音乐链接');
+                }
+                
                 displayPlayer(data, song);
                 
                 loading.style.display = 'none';
@@ -756,6 +848,81 @@
             } catch (err) {
                 showError(err.message);
             }
+        }
+        
+        // 解析歌词
+        function parseLyrics(lrcText) {
+            lyricsData = [];
+            
+            // 清除之前的歌词定时器
+            clearLyricsInterval();
+            
+            // 如果没有歌词
+            if (!lrcText || lrcText.trim() === '') {
+                currentLyric.textContent = '暂无歌词';
+                return;
+            }
+            
+            // 解析歌词
+            const lines = lrcText.split('\n');
+            const pattern = /\[(\d+):(\d+)\.(\d+)\](.*)/;
+            
+            lines.forEach(line => {
+                const matches = line.match(pattern);
+                if (matches) {
+                    const minutes = parseFloat(matches[1]);
+                    const seconds = parseFloat(matches[2]);
+                    const milliseconds = parseFloat(matches[3]) / 100;
+                    const text = matches[4].trim();
+                    
+                    const time = minutes * 60 + seconds + milliseconds;
+                    
+                    if (text) {
+                        lyricsData.push({
+                            time: time,
+                            text: text
+                        });
+                    }
+                }
+            });
+            
+            // 如果没有解析到有效的歌词
+            if (lyricsData.length === 0) {
+                currentLyric.textContent = '暂无歌词';
+            } else {
+                // 按时间排序
+                lyricsData.sort((a, b) => a.time - b.time);
+                currentLyric.textContent = '歌词加载完成';
+            }
+            
+            // 设置歌词更新定时器
+            lyricsInterval = setInterval(updateLyrics, 100);
+        }
+        
+        // 更新歌词显示（单行显示）
+        function updateLyrics() {
+            if (lyricsData.length === 0 || audioPlayer.paused) return;
+            
+            const currentTime = audioPlayer.currentTime;
+            let currentLyricText = '暂无歌词';
+            
+            // 找到当前应该显示的歌词
+            for (let i = 0; i < lyricsData.length; i++) {
+                if (lyricsData[i].time <= currentTime) {
+                    currentLyricText = lyricsData[i].text;
+                    
+                    // 如果不是最后一句，检查下一句的时间
+                    if (i < lyricsData.length - 1 && currentTime >= lyricsData[i+1].time) {
+                        // 如果已经过了下一句的时间，则显示下一句
+                        continue;
+                    }
+                } else {
+                    break;
+                }
+            }
+            
+            // 更新歌词显示
+            currentLyric.textContent = currentLyricText;
         }
         
         // 显示播放器
@@ -840,6 +1007,17 @@
                 .then(data => {
                     if (data.code === 200 && data.song_url) {
                         return fetch(data.song_url);
+                    } else if (data.code === 200 && data.song_mid) {
+                        // 使用二次API获取下载链接
+                        return fetch(`https://api.jkyai.top/API/yyjhss.php?id=${data.song_mid}&type=qq`)
+                            .then(response => response.json())
+                            .then(secondData => {
+                                if (secondData.code === 1 && secondData.data.url) {
+                                    return fetch(secondData.data.url);
+                                } else {
+                                    throw new Error('获取下载链接失败');
+                                }
+                            });
                     } else {
                         throw new Error('获取下载链接失败');
                     }
