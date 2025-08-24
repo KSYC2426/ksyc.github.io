@@ -152,6 +152,39 @@
             font-size: 12px;
             margin-top: 3px;
         }
+        .quality-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .quality-window {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+        }
+        .quality-option {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .quality-option:hover {
+            background-color: #f5f5f5;
+        }
+        .quality-header {
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -168,6 +201,7 @@
                 <tr>
                     <th>歌曲名</th>
                     <th>歌手</th>
+                    <th>专辑</th>
                     <th>操作</th>
                 </tr>
             </thead>
@@ -182,6 +216,15 @@
             <div>正在下载...</div>
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="quality-modal" id="qualityModal">
+        <div class="quality-window">
+            <div class="quality-header">选择音质</div>
+            <div id="qualityOptions">
+                <!-- 音质选项将在这里动态生成 -->
             </div>
         </div>
     </div>
@@ -276,11 +319,11 @@
             }
             
             try {
-                const url = `https://www.hhlqilongzhu.cn/api/dg_QQmusicflac.php?type=json&msg=${encodeURIComponent(query)}&n=`;
+                const url = `https://api.jkyai.top/API/qqmusic.php?msg=${encodeURIComponent(query)}`;
                 const response = await fetch(url);
                 const data = await response.json();
                 
-                if (data.code !== 200 || !data.data) {
+                if (data.code !== 200 || !data.data || !data.data.songs) {
                     alert('未找到相关歌曲');
                     return;
                 }
@@ -290,14 +333,15 @@
                 songList.innerHTML = '';
                 
                 // 添加新结果
-                data.data.forEach(song => {
+                data.data.songs.forEach(song => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${song.song_title}</td>
-                        <td>${song.song_singer}</td>
+                        <td>${song.name}</td>
+                        <td>${song.artist}</td>
+                        <td>${song.album}</td>
                         <td>
-                            <button class="action-btn play-btn" data-n="${song.n}" data-title="${song.song_title}" data-singer="${song.song_singer}">播放</button>
-                            <button class="action-btn download-btn" data-n="${song.n}" data-title="${song.song_title}" data-singer="${song.song_singer}">下载</button>
+                            <button class="action-btn play-btn" data-n="${song.number}" data-title="${song.name}" data-singer="${song.artist}">播放</button>
+                            <button class="action-btn download-btn" data-n="${song.number}" data-title="${song.name}" data-singer="${song.artist}">下载</button>
                         </td>
                     `;
                     songList.appendChild(row);
@@ -312,7 +356,7 @@
             const query = document.getElementById('searchInput').value.trim();
             
             try {
-                const infoUrl = `https://www.hhlqilongzhu.cn/api/dg_QQmusicflac.php?type=json&msg=${encodeURIComponent(query)}&n=${n}`;
+                const infoUrl = `https://api.jkyai.top/API/qqmusic.php?msg=${encodeURIComponent(query)}&n=${n}`;
                 const infoResponse = await fetch(infoUrl);
                 const info = await infoResponse.json();
                 
@@ -322,7 +366,7 @@
                 }
                 
                 const data = info.data;
-                const musicUrl = data.music_url;
+                const musicUrl = data.recommended_url || (data.formats && data.formats[0] && data.formats[0].url);
                 
                 if (!musicUrl) {
                     alert('无法获取歌曲播放地址');
@@ -338,59 +382,78 @@
             }
         }
         
+        // 显示音质选择对话框
+        function showQualityDialog(n, title, singer) {
+            const query = document.getElementById('searchInput').value.trim();
+            const qualityModal = document.getElementById('qualityModal');
+            const qualityOptions = document.getElementById('qualityOptions');
+            
+            // 清空现有选项
+            qualityOptions.innerHTML = '';
+            
+            // 获取歌曲信息并显示音质选项
+            fetch(`https://api.jkyai.top/API/qqmusic.php?msg=${encodeURIComponent(query)}&n=${n}`)
+                .then(response => response.json())
+                .then(info => {
+                    if (info.code !== 200 || !info.data) {
+                        alert('获取歌曲信息失败');
+                        return;
+                    }
+                    
+                    const data = info.data;
+                    
+                    // 添加音质选项
+                    if (data.formats && data.formats.length > 0) {
+                        data.formats.forEach(format => {
+                            const option = document.createElement('div');
+                            option.className = 'quality-option';
+                            option.innerHTML = `${format.quality} - ${format.size}`;
+                            option.onclick = () => {
+                                qualityModal.style.display = 'none';
+                                downloadWithQuality(format.url, title, singer, format.quality);
+                            };
+                            qualityOptions.appendChild(option);
+                        });
+                    } else if (data.recommended_url) {
+                        const option = document.createElement('div');
+                        option.className = 'quality-option';
+                        option.innerHTML = '推荐音质';
+                        option.onclick = () => {
+                            qualityModal.style.display = 'none';
+                            downloadWithQuality(data.recommended_url, title, singer, '推荐音质');
+                        };
+                        qualityOptions.appendChild(option);
+                    } else {
+                        alert('没有可用的下载选项');
+                        return;
+                    }
+                    
+                    // 显示对话框
+                    qualityModal.style.display = 'flex';
+                })
+                .catch(error => {
+                    alert(`获取音质信息失败: ${error}`);
+                });
+        }
+        
+        // 使用选定音质下载歌曲
+        function downloadWithQuality(url, title, singer, quality) {
+            const safeBaseName = `${title}-${singer}`.replace(/[\\/:*?"<>|]/g, '_');
+            
+            // 直接用a标签下载
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${safeBaseName}-${quality}.mp3`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            alert(`已开始下载：${safeBaseName}-${quality}.mp3`);
+        }
+        
         // 下载歌曲
         async function downloadSong(n, title, singer) {
-            const query = document.getElementById('searchInput').value.trim();
-
-            try {
-                const infoUrl = `https://www.hhlqilongzhu.cn/api/dg_QQmusicflac.php?type=json&msg=${encodeURIComponent(query)}&n=${n}`;
-                const infoResponse = await fetch(infoUrl);
-                const info = await infoResponse.json();
-
-                if (info.code !== 200 || !info.data) {
-                    alert('获取歌曲信息失败');
-                    return;
-                }
-
-                const data = info.data;
-                const songTitle = data.song_title || title;
-                const songSinger = data.song_singer || singer;
-                const safeBaseName = `${songTitle}-${songSinger}`.replace(/[\\/:*?"<>|]/g, '_');
-                const musicUrl = data.music_url;
-                const lyric = data.lyric || '';
-
-                if (!musicUrl) {
-                    alert('无法获取歌曲下载地址');
-                    return;
-                }
-
-                // 直接用a标签下载
-                const a = document.createElement('a');
-                a.href = musicUrl;
-                a.download = `${safeBaseName}.mp3`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-                // 保存歌词
-                if (lyric) {
-                    const lyricBlob = new Blob([lyric.replace(/\\n/g, '\n')], { type: 'text/plain' });
-                    const lyricBlobUrl = URL.createObjectURL(lyricBlob);
-
-                    const lyricA = document.createElement('a');
-                    lyricA.href = lyricBlobUrl;
-                    lyricA.download = `${safeBaseName}.lrc`;
-                    document.body.appendChild(lyricA);
-                    lyricA.click();
-                    document.body.removeChild(lyricA);
-
-                    setTimeout(() => URL.revokeObjectURL(lyricBlobUrl), 100);
-                }
-
-                alert(`已下载：\n${safeBaseName}.mp3${lyric ? `\n${safeBaseName}.lrc` : ''}`);
-            } catch (error) {
-                alert(`下载失败: ${error}`);
-            }
+            showQualityDialog(n, title, singer);
         }
         
         // 事件监听
@@ -415,6 +478,13 @@
                 const title = e.target.dataset.title;
                 const singer = e.target.dataset.singer;
                 downloadSong(n, title, singer);
+            }
+        });
+        
+        // 点击模态框背景关闭
+        document.getElementById('qualityModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
             }
         });
     </script>
