@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多文件重命名工具</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --border-radius: 6px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            height: fit-content;
+        }
+        
+        .panel-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            color: var(--dark-color);
+        }
+        
+        .upload-area {
+            border: 2px dashed #bdc3c7;
+            border-radius: var(--border-radius);
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: #f8f9fa;
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: #e8f4fd;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+        }
+        
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: var(--border-radius);
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+        
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group input {
+            margin-right: 8px;
+        }
+        
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+        
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+        
+        .old-name {
+            color: #7f8c8d;
+            text-decoration: line-through;
+            margin-right: 10px;
+        }
+        
+        .new-name {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-buttons .btn {
+            flex: 1;
+        }
+        
+        .status-bar {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            text-align: center;
+            color: #7f8c8d;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #7f8c8d;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #bdc3c7;
+        }
+        
+        .download-options {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+        }
+        
+        .download-options h3 {
+            margin-bottom: 10px;
+            font-size: 1rem;
+            color: var(--dark-color);
+        }
+        
+        .download-name-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .download-name-input input {
+            flex: 1;
+        }
+        
+        .download-name-input button {
+            white-space: nowrap;
+        }
+        
+        .upload-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .upload-options .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+        
+        .file-info .zip-icon {
+            color: var(--warning-color);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #ecf0f1;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-bar-inner {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .operation-group {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+        }
+        
+        .operation-group h3 {
+            margin-bottom: 10px;
+            font-size: 1rem;
+            color: var(--dark-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .operation-toggle {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .edit-name-input {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .edit-name-input input {
+            flex: 1;
+            padding: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .edit-name-input button {
+            padding: 5px 10px;
+        }
+        
+        .file-item.editing {
+            background-color: #f0f7ff;
+            border-radius: 4px;
+        }
+        
+        .url-input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .url-input-group input {
+            flex: 1;
+        }
+        
+        .url-input-group button {
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>多文件重命名工具 - 增强版</h1>
+            <p class="description">上传文件、文件夹、压缩包或ZIP链接，支持多重重命名操作，可单独编辑文件名，然后下载重命名后的文件ZIP包</p>
+        </header>
+        
+        <div class="app-container">
+            <div class="panel">
+                <h2 class="panel-title">文件管理</h2>
+                
+                <div class="upload-options">
+                    <button class="btn btn-primary" id="addFilesBtn">添加文件</button>
+                    <button class="btn btn-primary" id="addFolderBtn">添加文件夹</button>
+                    <button class="btn btn-warning" id="addZipBtn">添加压缩包</button>
+                    <button class="btn btn-success" id="addZipUrlBtn">ZIP链接</button>
+                </div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <h3>点击或拖拽文件/文件夹/压缩包到这里</h3>
+                    <p>支持多选文件、整个文件夹和ZIP压缩包上传</p>
+                    <input type="file" id="fileInput" multiple style="display: none;">
+                    <input type="file" id="folderInput" webkitdirectory style="display: none;">
+                    <input type="file" id="zipInput" accept=".zip" style="display: none;">
+                </div>
+                
+                <div class="url-input-group" id="urlInputGroup" style="display: none;">
+                    <input type="url" id="zipUrlInput" placeholder="输入ZIP文件链接">
+                    <button class="btn btn-success" id="loadZipUrlBtn">加载</button>
+                </div>
+                
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-bar-inner" id="progressBarInner"></div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-danger" id="clearFilesBtn">清空列表</button>
+                </div>
+                
+                <div class="file-list" id="fileList">
+                    <div class="empty-state">
+                        <i>📄</i>
+                        <p>暂无文件</p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="filterExt">过滤扩展名:</label>
+                    <input type="text" id="filterExt" placeholder="例如: txt, pdf 或留空显示所有">
+                    <button class="btn btn-primary btn-sm" id="filterBtn" style="margin-top: 5px; width: auto;">应用过滤</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sortMethod">排序方式:</label>
+                    <select id="sortMethod">
+                        <option value="default">默认顺序</option>
+                        <option value="name-asc">名称 (升序)</option>
+                        <option value="name-desc">名称 (降序)</option>
+                        <option value="size-asc">大小 (升序)</option>
+                        <option value="size-desc">大小 (降序)</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" id="sortBtn" style="margin-top: 5px; width: auto;">应用排序</button>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2 class="panel-title">重命名选项</h2>
+                
+                <div class="tab-container">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="combined">组合操作</div>
+                        <div class="tab" data-tab="number">序号重命名</div>
+                    </div>
+                    
+                    <!-- 组合操作选项卡 -->
+                    <div class="tab-content active" id="combined-tab">
+                        <div class="operation-group" id="replaceOperation">
+                            <h3>
+                                文本替换
+                                <button class="operation-toggle" data-operation="replace">启用</button>
+                            </h3>
+                            <div class="operation-content" style="display: none;">
+                                <div class="form-group">
+                                    <label for="findText">查找文本:</label>
+                                    <input type="text" id="findText" placeholder="要查找的文本">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="replaceText">替换文本:</label>
+                                    <input type="text" id="replaceText" placeholder="替换为的文本">
+                                </div>
+                                
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="caseSensitive">
+                                    <label for="caseSensitive">区分大小写</label>
+                                </div>
+                                
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="useRegex">
+                                    <label for="useRegex">使用正则表达式</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="operation-group" id="prefixOperation">
+                            <h3>
+                                添加前后缀
+                                <button class="operation-toggle" data-operation="prefix">启用</button>
+                            </h3>
+                            <div class="operation-content" style="display: none;">
+                                <div class="form-group">
+                                    <label>添加位置:</label>
+                                    <div class="checkbox-group">
+                                        <input type="radio" id="positionPrefix" name="position" checked>
+                                        <label for="positionPrefix">添加到文件名前面</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="radio" id="positionSuffix" name="position">
+                                        <label for="positionSuffix">添加到文件名后面（扩展名前）</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="radio" id="positionExt" name="position">
+                                        <label for="positionExt">添加到扩展名后面</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="addText">要添加的文本:</label>
+                                    <input type="text" id="addText" placeholder="要添加的文本">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="operation-group" id="formatOperation">
+                            <h3>
+                                格式转换
+                                <button class="operation-toggle" data-operation="format">启用</button>
+                            </h3>
+                            <div class="operation-content" style="display: none;">
+                                <div class="form-group">
+                                    <label>大小写转换:</label>
+                                    <div class="checkbox-group">
+                                        <input type="radio" id="caseLower" name="case">
+                                        <label for="caseLower">全部小写</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="radio" id="caseUpper" name="case">
+                                        <label for="caseUpper">全部大写</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="radio" id="caseTitle" name="case">
+                                        <label for="caseTitle">首字母大写</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="spaceReplacement">替换空格为:</label>
+                                    <input type="text" id="spaceReplacement" value="_">
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="replaceSpace">
+                                        <label for="replaceSpace">启用空格替换</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="removeSpecial">
+                                    <label for="removeSpecial">移除特殊字符（保留字母、数字和下划线）</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="keepExtCombined" checked>
+                            <label for="keepExtCombined">保留原扩展名</label>
+                        </div>
+                    </div>
+                    
+                    <!-- 序号重命名选项卡 -->
+                    <div class="tab-content" id="number-tab">
+                        <div class="form-group">
+                            <label for="prefixNumber">前缀:</label>
+                            <input type="text" id="prefixNumber" placeholder="例如: 图片_">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="startNumber">起始编号:</label>
+                            <input type="number" id="startNumber" value="1" min="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="digits">位数:</label>
+                            <input type="number" id="digits" value="3" min="1" max="10">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="suffixNumber">后缀:</label>
+                            <input type="text" id="suffixNumber" placeholder="例如: _副本">
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="keepExtNumber" checked>
+                            <label for="keepExtNumber">保留原扩展名</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 下载选项区域 -->
+                <div class="download-options">
+                    <h3>下载选项</h3>
+                    <div class="form-group">
+                        <label for="zipName">压缩包名称:</label>
+                        <div class="download-name-input">
+                            <input type="text" id="zipName" placeholder="输入压缩包名称" value="renamed_files">
+                            <button class="btn btn-primary btn-sm" id="addTimestampBtn">添加时间戳</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-success" id="previewBtn">生成预览</button>
+                    <button class="btn btn-primary" id="renameBtn">执行重命名并下载</button>
+                </div>
+                
+                <div class="preview-list" id="previewList" style="margin-top: 20px;">
+                    <div class="empty-state">
+                        <i>👁️</i>
+                        <p>预览将在这里显示</p>
+                    </div>
+                </div>
+                
+                <div class="status-bar" id="statusBar">
+                    准备就绪
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <script>
+        // 全局变量
+        let files = [];
+        let filteredFiles = [];
+        let newNames = [];
+        let enabledOperations = new Set();
+        
+        // DOM元素
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const folderInput = document.getElementById('folderInput');
+        const zipInput = document.getElementById('zipInput');
+        const fileList = document.getElementById('fileList');
+        const previewList = document.getElementById('previewList');
+        const statusBar = document.getElementById('statusBar');
+        const zipNameInput = document.getElementById('zipName');
+        const addTimestampBtn = document.getElementById('addTimestampBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressBarInner = document.getElementById('progressBarInner');
+        const urlInputGroup = document.getElementById('urlInputGroup');
+        const zipUrlInput = document.getElementById('zipUrlInput');
+        const loadZipUrlBtn = document.getElementById('loadZipUrlBtn');
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initEventListeners();
+            updateFileList();
+            updateZipName();
+        });
+        
+        // 初始化事件监听器
+        function initEventListeners() {
+            // 上传区域事件
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            uploadArea.addEventListener('drop', handleDrop);
+            
+            // 文件输入事件
+            fileInput.addEventListener('change', handleFileSelect);
+            folderInput.addEventListener('change', handleFolderSelect);
+            zipInput.addEventListener('change', handleZipSelect);
+            
+            // 按钮事件
+            document.getElementById('addFilesBtn').addEventListener('click', () => fileInput.click());
+            document.getElementById('addFolderBtn').addEventListener('click', () => folderInput.click());
+            document.getElementById('addZipBtn').addEventListener('click', () => zipInput.click());
+            document.getElementById('addZipUrlBtn').addEventListener('click', toggleZipUrlInput);
+            loadZipUrlBtn.addEventListener('click', handleZipUrlLoad);
+            document.getElementById('clearFilesBtn').addEventListener('click', clearFiles);
+            document.getElementById('filterBtn').addEventListener('click', filterFiles);
+            document.getElementById('sortBtn').addEventListener('click', sortFiles);
+            document.getElementById('previewBtn').addEventListener('click', generatePreview);
+            document.getElementById('renameBtn').addEventListener('click', executeRename);
+            addTimestampBtn.addEventListener('click', addTimestampToZipName);
+            
+            // 操作切换按钮
+            document.querySelectorAll('.operation-toggle').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const operation = this.getAttribute('data-operation');
+                    toggleOperation(operation, this);
+                });
+            });
+            
+            // 标签页切换
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有活动标签
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // 激活当前标签
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+        }
+        
+        // 切换ZIP链接输入框显示
+        function toggleZipUrlInput() {
+            if (urlInputGroup.style.display === 'none') {
+                urlInputGroup.style.display = 'flex';
+                uploadArea.style.display = 'none';
+            } else {
+                urlInputGroup.style.display = 'none';
+                uploadArea.style.display = 'block';
+            }
+        }
+        
+        // 处理ZIP链接加载
+        async function handleZipUrlLoad() {
+            const url = zipUrlInput.value.trim();
+            if (!url) {
+                alert('请输入ZIP文件链接');
+                return;
+            }
+            
+            if (!url.toLowerCase().endsWith('.zip')) {
+                if (!confirm('这个链接可能不是ZIP文件，是否继续尝试加载？')) {
+                    return;
+                }
+            }
+            
+            try {
+                updateStatus('正在从链接下载ZIP文件...');
+                progressBar.style.display = 'block';
+                progressBarInner.style.width = '0%';
+                
+                // 使用fetch获取ZIP文件
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`下载失败: ${response.status} ${response.statusText}`);
+                }
+                
+                const zipBlob = await response.blob();
+                
+                // 创建File对象
+                const fileName = url.split('/').pop() || 'downloaded.zip';
+                const zipFile = new File([zipBlob], fileName, {
+                    type: 'application/zip',
+                    lastModified: new Date()
+                });
+                
+                // 询问是否解压ZIP文件
+                if (confirm(`是否解压并读取ZIP文件 "${fileName}" 中的内容？`)) {
+                    await processZipFiles([zipFile]);
+                } else {
+                    // 将ZIP文件作为普通文件处理
+                    processFiles([zipFile]);
+                }
+                
+                // 重置URL输入
+                zipUrlInput.value = '';
+                urlInputGroup.style.display = 'none';
+                uploadArea.style.display = 'block';
+                
+            } catch (error) {
+                console.error('加载ZIP链接失败:', error);
+                alert(`加载ZIP链接失败: ${error.message}`);
+                updateStatus('加载ZIP链接失败');
+            } finally {
+                progressBar.style.display = 'none';
+            }
+        }
+        
+        // 切换操作启用状态
+        function toggleOperation(operation, button) {
+            const operationContent = button.closest('.operation-group').querySelector('.operation-content');
+            
+            if (enabledOperations.has(operation)) {
+                // 禁用操作
+                enabledOperations.delete(operation);
+                operationContent.style.display = 'none';
+                button.textContent = '启用';
+                button.style.color = '';
+            } else {
+                // 启用操作
+                enabledOperations.add(operation);
+                operationContent.style.display = 'block';
+                button.textContent = '禁用';
+                button.style.color = 'var(--danger-color)';
+            }
+        }
+        
+        // 处理拖放事件
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+        
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const droppedFiles = e.dataTransfer.files;
+            if (droppedFiles.length > 0) {
+                // 检查是否有ZIP文件
+                const zipFiles = Array.from(droppedFiles).filter(file => 
+                    file.name.toLowerCase().endsWith('.zip')
+                );
+                
+                if (zipFiles.length > 0) {
+                    // 询问是否解压ZIP文件
+                    if (confirm(`检测到 ${zipFiles.length} 个ZIP文件，是否解压并读取其中的文件？`)) {
+                        processZipFiles(zipFiles);
+                    } else {
+                        // 将ZIP文件作为普通文件处理
+                        processFiles(droppedFiles);
+                    }
+                } else {
+                    // 处理普通文件
+                    processFiles(droppedFiles);
+                }
+            }
+        }
+        
+        // 处理文件选择
+        function handleFileSelect(e) {
+            const selectedFiles = Array.from(e.target.files);
+            
+            // 检查是否有ZIP文件
+            const zipFiles = selectedFiles.filter(file => 
+                file.name.toLowerCase().endsWith('.zip')
+            );
+            
+            if (zipFiles.length > 0) {
+                // 询问是否解压ZIP文件
+                if (confirm(`检测到 ${zipFiles.length} 个ZIP文件，是否解压并读取其中的文件？`)) {
+                    processZipFiles(zipFiles);
+                } else {
+                    // 将ZIP文件作为普通文件处理
+                    processFiles(selectedFiles);
+                }
+            } else {
+                // 处理普通文件
+                processFiles(selectedFiles);
+            }
+            
+            fileInput.value = ''; // 重置输入，允许选择相同文件
+        }
+        
+        function handleFolderSelect(e) {
+            processFiles(e.target.files);
+            folderInput.value = ''; // 重置输入
+        }
+        
+        function handleZipSelect(e) {
+            const zipFiles = Array.from(e.target.files);
+            if (zipFiles.length > 0) {
+                // 直接解压ZIP文件
+                processZipFiles(zipFiles);
+            }
+            zipInput.value = ''; // 重置输入
+        }
+        
+        // 处理ZIP文件
+        async function processZipFiles(fileList) {
+            const zipFiles = Array.from(fileList);
+            
+            if (zipFiles.length === 0) return;
+            
+            // 显示进度条
+            progressBar.style.display = 'block';
+            progressBarInner.style.width = '0%';
+            
+            let processedFiles = 0;
+            let totalExtracted = 0;
+            
+            for (const zipFile of zipFiles) {
+                try {
+                    updateStatus(`正在解压 ${zipFile.name}...`);
+                    
+                    // 读取ZIP文件
+                    const zip = new JSZip();
+                    const zipData = await readFileAsArrayBuffer(zipFile);
+                    const loadedZip = await zip.loadAsync(zipData);
+                    
+                    // 获取ZIP中的所有文件
+                    const zipFilePromises = [];
+                    
+                    loadedZip.forEach((relativePath, zipEntry) => {
+                        if (!zipEntry.dir) {
+                            zipFilePromises.push(
+                                zipEntry.async('blob').then(blob => {
+                                    // 创建File对象
+                                    const file = new File([blob], zipEntry.name, {
+                                        type: blob.type,
+                                        lastModified: new Date()
+                                    });
+                                    return file;
+                                })
+                            );
+                        }
+                    });
+                    
+                    // 等待所有文件处理完成
+                    const extractedFiles = await Promise.all(zipFilePromises);
+                    
+                    // 添加到文件列表
+                    processFiles(extractedFiles);
+                    totalExtracted += extractedFiles.length;
+                    
+                    processedFiles++;
+                    progressBarInner.style.width = `${(processedFiles / zipFiles.length) * 100}%`;
+                    
+                } catch (error) {
+                    console.error(`解压 ${zipFile.name} 失败:`, error);
+                    alert(`解压 ${zipFile.name} 失败: ${error.message}`);
+                }
+            }
+            
+            // 隐藏进度条
+            setTimeout(() => {
+                progressBar.style.display = 'none';
+            }, 1000);
+            
+            updateStatus(`已从 ${zipFiles.length} 个压缩包中提取 ${totalExtracted} 个文件`);
+        }
+        
+        // 读取文件为ArrayBuffer
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        // 处理文件列表
+        function processFiles(fileList) {
+            const newFiles = Array.from(fileList);
+            
+            // 避免重复添加
+            const existingPaths = files.map(f => f.name);
+            const uniqueFiles = newFiles.filter(file => !existingPaths.includes(file.name));
+            
+            if (uniqueFiles.length > 0) {
+                files.push(...uniqueFiles);
+                filteredFiles = [...files];
+                updateFileList();
+                updateStatus(`已添加 ${uniqueFiles.length} 个文件`);
+                updateZipName();
+            }
+        }
+        
+        // 更新文件列表显示
+        function updateFileList() {
+            fileList.innerHTML = '';
+            
+            if (filteredFiles.length === 0) {
+                fileList.innerHTML = `
+                    <div class="empty-state">
+                        <i>📄</i>
+                        <p>暂无文件</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.setAttribute('data-index', index);
+                
+                fileItem.innerHTML = `
+                    <div class="file-name" title="${file.name}">
+                        ${file.name}
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn btn-primary btn-sm edit-btn" data-index="${index}">编辑</button>
+                        <button class="btn btn-danger btn-sm remove-btn" data-index="${index}">移除</button>
+                    </div>
+                `;
+                
+                fileList.appendChild(fileItem);
+            });
+            
+            // 添加移除按钮事件
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeFile(index);
+                });
+            });
+            
+            // 添加编辑按钮事件
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    editFileName(index);
+                });
+            });
+        }
+        
+        // 编辑单个文件名
+        function editFileName(index) {
+            if (index < 0 || index >= filteredFiles.length) return;
+            
+            const fileItem = document.querySelector(`.file-item[data-index="${index}"]`);
+            const fileNameDiv = fileItem.querySelector('.file-name');
+            const oldName = filteredFiles[index].name;
+            
+            // 创建编辑界面
+            fileItem.classList.add('editing');
+            fileNameDiv.innerHTML = `
+                <div class="edit-name-input">
+                    <input type="text" value="${oldName}" class="edit-name-field">
+                    <button class="btn btn-success btn-sm save-edit-btn">保存</button>
+                    <button class="btn btn-danger btn-sm cancel-edit-btn">取消</button>
+                </div>
+            `;
+            
+            // 添加事件监听器
+            const saveBtn = fileItem.querySelector('.save-edit-btn');
+            const cancelBtn = fileItem.querySelector('.cancel-edit-btn');
+            const inputField = fileItem.querySelector('.edit-name-field');
+            
+            saveBtn.addEventListener('click', function() {
+                const newName = inputField.value.trim();
+                if (newName && newName !== oldName) {
+                    // 更新文件名
+                    filteredFiles[index] = new File([filteredFiles[index]], newName, {
+                        type: filteredFiles[index].type,
+                        lastModified: new Date()
+                    });
+                    updateFileList();
+                    updateStatus(`已修改文件名: ${oldName} -> ${newName}`);
+                }
+                fileItem.classList.remove('editing');
+            });
+            
+            cancelBtn.addEventListener('click', function() {
+                fileItem.classList.remove('editing');
+                updateFileList();
+            });
+            
+            // 按Enter保存，按ESC取消
+            inputField.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    saveBtn.click();
+                } else if (e.key === 'Escape') {
+                    cancelBtn.click();
+                }
+            });
+            
+            // 自动聚焦输入框
+            inputField.focus();
+            inputField.select();
+        }
+        
+        // 移除单个文件
+        function removeFile(index) {
+            if (index >= 0 && index < filteredFiles.length) {
+                const fileName = filteredFiles[index].name;
+                
+                // 从files中移除
+                const fileIndex = files.findIndex(f => f.name === fileName);
+                if (fileIndex !== -1) {
+                    files.splice(fileIndex, 1);
+                }
+                
+                // 从filteredFiles中移除
+                filteredFiles.splice(index, 1);
+                
+                updateFileList();
+                updateStatus(`已移除文件: ${fileName}`);
+                updateZipName();
+            }
+        }
+        
+        // 清空文件列表
+        function clearFiles() {
+            if (files.length === 0) return;
+            
+            if (confirm(`确定要清空 ${files.length} 个文件吗？`)) {
+                files = [];
+                filteredFiles = [];
+                updateFileList();
+                updateStatus('已清空文件列表');
+                updateZipName();
+            }
+        }
+        
+        // 过滤文件
+        function filterFiles() {
+            const filterText = document.getElementById('filterExt').value.trim().toLowerCase();
+            
+            if (!filterText) {
+                filteredFiles = [...files];
+            } else {
+                const exts = filterText.split(',').map(ext => ext.trim());
+                filteredFiles = files.filter(file => {
+                    const fileName = file.name.toLowerCase();
+                    return exts.some(ext => fileName.endsWith(`.${ext}`));
+                });
+            }
+            
+            updateFileList();
+            updateStatus(`已过滤，显示 ${filteredFiles.length} 个文件`);
+        }
+        
+        // 排序文件
+        function sortFiles() {
+            const sortMethod = document.getElementById('sortMethod').value;
+            
+            switch(sortMethod) {
+                case 'name-asc':
+                    filteredFiles.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'name-desc':
+                    filteredFiles.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+                case 'size-asc':
+                    filteredFiles.sort((a, b) => a.size - b.size);
+                    break;
+                case 'size-desc':
+                    filteredFiles.sort((a, b) => b.size - a.size);
+                    break;
+                default:
+                    // 默认顺序，不排序
+                    break;
+            }
+            
+            updateFileList();
+            updateStatus('文件已排序');
+        }
+        
+        // 生成预览
+        function generatePreview() {
+            if (filteredFiles.length === 0) {
+                alert('请先添加文件!');
+                return;
+            }
+            
+            const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
+            newNames = [];
+            
+            switch(activeTab) {
+                case 'combined':
+                    generateCombinedPreview();
+                    break;
+                case 'number':
+                    generateNumberPreview();
+                    break;
+            }
+            
+            updatePreviewList();
+            updateStatus(`${getTabName(activeTab)}预览已生成`);
+        }
+        
+        // 组合操作预览
+        function generateCombinedPreview() {
+            const keepExt = document.getElementById('keepExtCombined').checked;
+            
+            filteredFiles.forEach(file => {
+                let fileName = keepExt ? removeExtension(file.name) : file.name;
+                const ext = keepExt ? getFileExtension(file.name) : '';
+                
+                // 按顺序应用启用的操作
+                if (enabledOperations.has('replace')) {
+                    fileName = applyReplaceOperation(fileName);
+                }
+                
+                if (enabledOperations.has('prefix')) {
+                    fileName = applyPrefixOperation(fileName);
+                }
+                
+                if (enabledOperations.has('format')) {
+                    fileName = applyFormatOperation(fileName);
+                }
+                
+                newNames.push(`${fileName}${ext}`);
+            });
+        }
+        
+        // 应用替换操作
+        function applyReplaceOperation(fileName) {
+            const findText = document.getElementById('findText').value;
+            const replaceText = document.getElementById('replaceText').value;
+            const caseSensitive = document.getElementById('caseSensitive').checked;
+            const useRegex = document.getElementById('useRegex').checked;
+            
+            if (!findText) return fileName;
+            
+            if (useRegex) {
+                try {
+                    const flags = caseSensitive ? 'g' : 'gi';
+                    const regex = new RegExp(findText, flags);
+                    return fileName.replace(regex, replaceText);
+                } catch (e) {
+                    alert(`正则表达式错误: ${e.message}`);
+                    return fileName;
+                }
+            } else {
+                if (caseSensitive) {
+                    return fileName.replaceAll(findText, replaceText);
+                } else {
+                    const regex = new RegExp(findText, 'gi');
+                    return fileName.replace(regex, replaceText);
+                }
+            }
+        }
+        
+        // 应用前后缀操作
+        function applyPrefixOperation(fileName) {
+            const addText = document.getElementById('addText').value;
+            const positionPrefix = document.getElementById('positionPrefix').checked;
+            const positionSuffix = document.getElementById('positionSuffix').checked;
+            
+            if (!addText) return fileName;
+            
+            if (positionPrefix) {
+                return `${addText}${fileName}`;
+            } else if (positionSuffix) {
+                return `${fileName}${addText}`;
+            } else {
+                return `${fileName}${addText}`;
+            }
+        }
+        
+        // 应用格式转换操作
+        function applyFormatOperation(fileName) {
+            const replaceSpace = document.getElementById('replaceSpace').checked;
+            const spaceReplacement = document.getElementById('spaceReplacement').value;
+            const removeSpecial = document.getElementById('removeSpecial').checked;
+            
+            const caseLower = document.getElementById('caseLower').checked;
+            const caseUpper = document.getElementById('caseUpper').checked;
+            const caseTitle = document.getElementById('caseTitle').checked;
+            
+            // 大小写转换
+            if (caseLower) {
+                fileName = fileName.toLowerCase();
+            } else if (caseUpper) {
+                fileName = fileName.toUpperCase();
+            } else if (caseTitle) {
+                fileName = fileName.replace(/\w\S*/g, txt => 
+                    txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+                );
+            }
+            
+            // 替换空格
+            if (replaceSpace) {
+                fileName = fileName.replace(/\s+/g, spaceReplacement);
+            }
+            
+            // 移除特殊字符
+            if (removeSpecial) {
+                fileName = fileName.replace(/[^\w\s]/g, '');
+                fileName = fileName.replace(/\s+/g, ' ').trim();
+            }
+            
+            return fileName;
+        }
+        
+        // 序号重命名预览
+        function generateNumberPreview() {
+            const prefix = document.getElementById('prefixNumber').value;
+            const startNum = parseInt(document.getElementById('startNumber').value) || 1;
+            const digits = parseInt(document.getElementById('digits').value) || 3;
+            const suffix = document.getElementById('suffixNumber').value;
+            const keepExt = document.getElementById('keepExtNumber').checked;
+            
+            filteredFiles.forEach((file, i) => {
+                const ext = keepExt ? getFileExtension(file.name) : '';
+                const num = startNum + i;
+                const numStr = String(num).padStart(digits, '0');
+                
+                const newName = `${prefix}${numStr}${suffix}${ext}`;
+                newNames.push(newName);
+            });
+        }
+        
+        // 更新预览列表
+        function updatePreviewList() {
+            previewList.innerHTML = '';
+            
+            if (newNames.length === 0) {
+                previewList.innerHTML = `
+                    <div class="empty-state">
+                        <i>👁️</i>
+                        <p>预览将在这里显示</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredFiles.forEach((file, i) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                
+                previewItem.innerHTML = `
+                    <div>
+                        <span class="old-name">${file.name}</span>
+                        <span>→</span>
+                        <span class="new-name">${newNames[i]}</span>
+                    </div>
+                `;
+                
+                previewList.appendChild(previewItem);
+            });
+        }
+        
+        // 执行重命名并下载
+        async function executeRename() {
+            if (filteredFiles.length === 0) {
+                alert('请先添加文件!');
+                return;
+            }
+            
+            if (!newNames || newNames.length === 0) {
+                alert('请先生成预览!');
+                return;
+            }
+            
+            if (!confirm(`确定要重命名 ${filteredFiles.length} 个文件吗？`)) {
+                return;
+            }
+            
+            try {
+                updateStatus('正在处理文件...');
+                
+                // 创建ZIP文件
+                const zip = new JSZip();
+                
+                // 处理每个文件
+                for (let i = 0; i < filteredFiles.length; i++) {
+                    const file = filteredFiles[i];
+                    const newName = newNames[i];
+                    
+                    // 将文件添加到ZIP
+                    zip.file(newName, file);
+                }
+                
+                // 生成ZIP文件
+                const zipBlob = await zip.generateAsync({type: 'blob'});
+                
+                // 获取压缩包名称
+                let zipName = zipNameInput.value.trim();
+                if (!zipName) {
+                    zipName = 'renamed_files';
+                }
+                
+                // 确保文件名以.zip结尾
+                if (!zipName.toLowerCase().endsWith('.zip')) {
+                    zipName += '.zip';
+                }
+                
+                // 下载ZIP文件
+                saveAs(zipBlob, zipName);
+                
+                updateStatus(`重命名完成，已下载 ${filteredFiles.length} 个文件到 ${zipName}`);
+                
+                // 重置预览
+                newNames = [];
+                updatePreviewList();
+                
+            } catch (error) {
+                console.error('重命名失败:', error);
+                alert(`重命名失败: ${error.message}`);
+                updateStatus('重命名失败');
+            }
+        }
+        
+        // 添加时间戳到压缩包名称
+        function addTimestampToZipName() {
+            const currentName = zipNameInput.value.trim();
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+            
+            // 移除现有的时间戳（如果有）
+            const baseName = currentName.replace(/_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}/, '');
+            
+            // 添加新的时间戳
+            zipNameInput.value = `${baseName}_${timestamp}`;
+        }
+        
+        // 根据文件内容更新压缩包名称
+        function updateZipName() {
+            if (files.length === 0) {
+                zipNameInput.value = 'renamed_files';
+                return;
+            }
+            
+            // 获取第一个文件的扩展名作为参考
+            const firstFile = files[0];
+            const ext = getFileExtension(firstFile.name);
+            
+            // 根据文件类型设置默认名称
+            if (ext) {
+                const category = getFileCategory(ext);
+                zipNameInput.value = `renamed_${category}_files`;
+            } else {
+                zipNameInput.value = 'renamed_files';
+            }
+        }
+        
+        // 工具函数
+        function getFileExtension(filename) {
+            const lastDotIndex = filename.lastIndexOf('.');
+            return lastDotIndex === -1 ? '' : filename.substring(lastDotIndex);
+        }
+        
+        function removeExtension(filename) {
+            const lastDotIndex = filename.lastIndexOf('.');
+            return lastDotIndex === -1 ? filename : filename.substring(0, lastDotIndex);
+        }
+        
+        function getTabName(tabId) {
+            const tabNames = {
+                'combined': '组合操作',
+                'number': '序号重命名'
+            };
+            return tabNames[tabId] || '未知';
+        }
+        
+        function getFileCategory(ext) {
+            const categories = {
+                '.jpg': 'image', '.jpeg': 'image', '.png': 'image', '.gif': 'image', '.bmp': 'image', '.webp': 'image',
+                '.pdf': 'document', '.doc': 'document', '.docx': 'document', '.txt': 'document', '.rtf': 'document',
+                '.mp3': 'audio', '.wav': 'audio', '.ogg': 'audio', '.flac': 'audio',
+                '.mp4': 'video', '.avi': 'video', '.mov': 'video', '.wmv': 'video',
+                '.zip': 'archive', '.rar': 'archive', '.7z': 'archive'
+            };
+            
+            const lowerExt = ext.toLowerCase();
+            return categories[lowerExt] || 'file';
+        }
+        
+        function updateStatus(message) {
+            statusBar.textContent = message;
+        }
+    </script>
+</body>
+</html>
