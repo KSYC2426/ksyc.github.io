@@ -1,0 +1,229 @@
+/* 飘动灯笼样式 */
+.floating-lanterns {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 150px;
+    z-index: 9999;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* 单个灯笼包装 */
+.floating-lanterns .lantern-wrapper {
+    position: absolute;
+    top: 0;
+    width: 100px;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+}
+
+/* 灯笼悬挂线 */
+.floating-lanterns .lantern-rope {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, #8B4513, #D2691E);
+    margin-bottom: -2px;
+    z-index: 1;
+}
+
+/* 灯笼顶部挂钩 */
+.floating-lanterns .lantern-hook {
+    width: 20px;
+    height: 10px;
+    background: #D2691E;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+    z-index: 2;
+}
+
+/* 灯笼主体 */
+.floating-lanterns .lantern {
+    width: 60px;
+    height: 80px;
+    background: radial-gradient(circle at 30% 30%, #FF4500, #DC143C 70%);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    position: relative;
+    box-shadow: 
+        0 5px 15px rgba(255, 69, 0, 0.5),
+        inset 0 -8px 20px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFD700;
+    font-weight: bold;
+    font-size: 18px;
+    text-shadow: 1px 1px 2px #000;
+    font-family: "Microsoft YaHei", "SimHei", sans-serif;
+    z-index: 3;
+}
+
+/* 灯笼底部流苏 */
+.floating-lanterns .lantern-tassel {
+    width: 3px;
+    height: 30px;
+    background: linear-gradient(to bottom, #FFD700, #FF8C00, #8B0000);
+    margin-top: -5px;
+    z-index: 2;
+}
+
+/* 飘动动画效果 */
+@keyframes lantern-float-swing {
+    0%, 100% { 
+        transform: translateX(0) rotate(-5deg); 
+    }
+    25% { 
+        transform: translateX(3px) rotate(-2deg); 
+    }
+    50% { 
+        transform: translateX(0) rotate(1deg); 
+    }
+    75% { 
+        transform: translateX(-3px) rotate(4deg); 
+    }
+}
+
+@keyframes lantern-rope-swing {
+    0%, 100% { 
+        transform: translateX(0) rotate(-2deg); 
+    }
+    50% { 
+        transform: translateX(1px) rotate(2deg); 
+    }
+}
+
+/* 灯笼飘动动画 */
+.floating-lanterns .lantern-wrapper {
+    animation: lantern-float-swing 8s ease-in-out infinite;
+}
+
+.floating-lanterns .lantern-rope {
+    animation: lantern-rope-swing 4s ease-in-out infinite;
+}
+
+/* 每个灯笼不同的位置和动画延迟 */
+.floating-lanterns .lantern-wrapper:nth-child(1) {
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 7s;
+}
+
+.floating-lanterns .lantern-wrapper:nth-child(2) {
+    left: 30%;
+    animation-delay: 1.5s;
+    animation-duration: 6.5s;
+}
+
+.floating-lanterns .lantern-wrapper:nth-child(3) {
+    left: 50%;
+    animation-delay: 0.5s;
+    animation-duration: 7.5s;
+}
+
+.floating-lanterns .lantern-wrapper:nth-child(4) {
+    left: 70%;
+    animation-delay: 2s;
+    animation-duration: 6s;
+}
+
+/* 灯笼装饰细节 */
+.floating-lanterns .lantern::before {
+    content: "";
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: rgba(255, 215, 0, 0.6);
+    border-radius: 50%;
+    top: 15px;
+    left: 10px;
+    box-shadow: 20px 30px 0 rgba(255, 215, 0, 0.4);
+}
+
+.floating-lanterns .lantern::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 215, 0, 0.5);
+    border-radius: 50%;
+    bottom: 15px;
+    right: 10px;
+}
+
+/* 灯笼发光效果 */
+.floating-lanterns .lantern {
+    animation: lantern-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes lantern-glow {
+    from {
+        box-shadow: 
+            0 5px 15px rgba(255, 69, 0, 0.5),
+            inset 0 -8px 20px rgba(0, 0, 0, 0.2),
+            0 0 10px rgba(255, 215, 0, 0.1);
+    }
+    to {
+        box-shadow: 
+            0 5px 15px rgba(255, 69, 0, 0.5),
+            inset 0 -8px 20px rgba(0, 0, 0, 0.2),
+            0 0 20px rgba(255, 215, 0, 0.3);
+    }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .floating-lanterns {
+        height: 120px;
+    }
+    
+    .floating-lanterns .lantern-wrapper {
+        width: 70px;
+        height: 150px;
+    }
+    
+    .floating-lanterns .lantern {
+        width: 50px;
+        height: 65px;
+        font-size: 14px;
+    }
+    
+    .floating-lanterns .lantern-tassel {
+        height: 25px;
+    }
+    
+    .floating-lanterns .lantern-wrapper:nth-child(1) { left: 5%; }
+    .floating-lanterns .lantern-wrapper:nth-child(2) { left: 30%; }
+    .floating-lanterns .lantern-wrapper:nth-child(3) { left: 55%; }
+    .floating-lanterns .lantern-wrapper:nth-child(4) { left: 80%; }
+}
+
+@media (max-width: 480px) {
+    .floating-lanterns {
+        height: 100px;
+    }
+    
+    .floating-lanterns .lantern-wrapper {
+        width: 60px;
+        height: 130px;
+    }
+    
+    .floating-lanterns .lantern {
+        width: 40px;
+        height: 55px;
+        font-size: 12px;
+    }
+    
+    .floating-lanterns .lantern-tassel {
+        height: 20px;
+    }
+}
+
+/* 鼠标悬停效果 */
+.floating-lanterns .lantern:hover {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
