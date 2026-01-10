@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>软件大全 - 优质软件资源库</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(106, 17, 203, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .search-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #e1e5eb;
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6a11cb;
+        }
+        
+        .sort-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .sort-btn {
+            padding: 12px 20px;
+            background-color: white;
+            border: 2px solid #e1e5eb;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .sort-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #6a11cb;
+        }
+        
+        .sort-btn.active {
+            background-color: #6a11cb;
+            color: white;
+            border-color: #6a11cb;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .software-table {
+            width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+        }
+        
+        th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            user-select: none;
+        }
+        
+        th i {
+            margin-left: 8px;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #f1f1f1;
+            transition: background-color 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+        
+        td {
+            padding: 18px 15px;
+        }
+        
+        .software-name {
+            font-weight: 600;
+            color: #2d3436;
+        }
+        
+        .software-url a {
+            color: #6a11cb;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 15px;
+            background-color: #f3f0ff;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .software-url a:hover {
+            background-color: #6a11cb;
+            color: white;
+        }
+        
+        .software-time {
+            color: #636e72;
+        }
+        
+        .file-icon {
+            color: #0984e3;
+        }
+        
+        .link-icon {
+            color: #00b894;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 25px 0;
+            color: #636e72;
+            border-top: 1px solid #e1e5eb;
+            margin-top: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #636e72;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #dfe6e9;
+        }
+        
+        .data-status {
+            padding: 10px;
+            text-align: center;
+            font-style: italic;
+            color: #636e72;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .search-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: 100%;
+            }
+            
+            .sort-controls {
+                justify-content: center;
+            }
+            
+            th, td {
+                padding: 12px 10px;
+            }
+            
+            .software-table {
+                overflow-x: auto;
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-box-open"></i> 软件大全</h1>
+            <p class="subtitle">收录各类优质软件资源，包含开发工具、实用程序、设计软件等，持续更新中</p>
+        </header>
+        
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="搜索软件名称或描述...">
+            </div>
+            
+            <div class="sort-controls">
+                <button class="sort-btn" data-sort="name">
+                    <i class="fas fa-sort-alpha-down"></i> 按名称
+                </button>
+                <button class="sort-btn active" data-sort="time">
+                    <i class="fas fa-calendar-alt"></i> 按时间
+                </button>
+                <button class="sort-btn" data-sort="id">
+                    <i class="fas fa-sort-numeric-down"></i> 按ID
+                </button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div>共 <span id="totalCount">0</span> 个软件</div>
+            <div>最后更新: <span id="lastUpdate">2023-10-01</span></div>
+        </div>
+        
+        <div class="software-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID <i class="fas fa-sort"></i></th>
+                        <th>软件名称 <i class="fas fa-sort"></i></th>
+                        <th>下载/访问链接</th>
+                        <th>更新时间 <i class="fas fa-sort"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="softwareTableBody">
+                    <!-- 数据将通过JavaScript动态加载 -->
+                    <tr id="loadingRow">
+                        <td colspan="4" class="data-status">
+                            <i class="fas fa-spinner fa-spin"></i> 正在加载软件数据...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class="fas fa-box-open"></i>
+                <h3>未找到匹配的软件</h3>
+                <p>尝试使用其他关键词搜索</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 软件大全 | 本网站仅用于展示软件信息，请遵守软件许可协议</p>
+            <p>数据文件: <code>software_data.txt</code> | 最后加载: <span id="loadTime"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // 软件数据数组
+        let softwareData = [];
+        let currentSort = 'time';
+        let sortAscending = false;
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从TXT文件加载数据
+            loadSoftwareData();
+            
+            // 设置搜索功能
+            document.getElementById('searchInput').addEventListener('input', filterSoftware);
+            
+            // 设置排序按钮事件
+            document.querySelectorAll('.sort-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    // 移除所有按钮的active类
+                    document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+                    // 为当前按钮添加active类
+                    this.classList.add('active');
+                    
+                    // 获取排序类型
+                    const sortType = this.getAttribute('data-sort');
+                    sortSoftware(sortType);
+                });
+            });
+            
+            // 显示当前时间
+            document.getElementById('loadTime').textContent = new Date().toLocaleString('zh-CN');
+        });
+        
+        // 从TXT文件加载数据
+        function loadSoftwareData() {
+            // 移除加载提示
+            const loadingRow = document.getElementById('loadingRow');
+            if (loadingRow) loadingRow.remove();
+            
+            fetch('software_data.txt')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('无法加载软件数据文件');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    const lines = data.trim().split('\n');
+                    
+                    softwareData = lines.map(line => {
+                        const parts = line.split('|');
+                        return {
+                            id: parseInt(parts[0].trim()),
+                            name: parts[1].trim(),
+                            url: parts[2].trim(),
+                            time: parts[3].trim()
+                        };
+                    });
+                    
+                    // 计算最后更新时间
+                    const latestDate = softwareData.reduce((latest, software) => {
+                        return software.time > latest ? software.time : latest;
+                    }, '');
+                    
+                    // 更新统计信息
+                    document.getElementById('totalCount').textContent = softwareData.length;
+                    document.getElementById('lastUpdate').textContent = latestDate || '未知';
+                    
+                    // 初始排序和显示
+                    sortSoftware('time');
+                })
+                .catch(error => {
+                    console.error('加载数据时出错:', error);
+                    document.getElementById('softwareTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="4" class="data-status">
+                                <i class="fas fa-exclamation-triangle"></i> 无法加载软件数据。请确保 <code>software_data.txt</code> 文件与HTML文件在同一目录下。
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+        
+        // 排序软件数据
+        function sortSoftware(sortType) {
+            // 如果是相同的排序类型，则切换升序/降序
+            if (currentSort === sortType) {
+                sortAscending = !sortAscending;
+            } else {
+                currentSort = sortType;
+                sortAscending = false;
+            }
+            
+            // 排序数据
+            softwareData.sort((a, b) => {
+                let valueA, valueB;
+                
+                switch(sortType) {
+                    case 'id':
+                        valueA = a.id;
+                        valueB = b.id;
+                        break;
+                    case 'name':
+                        valueA = a.name.toLowerCase();
+                        valueB = b.name.toLowerCase();
+                        break;
+                    case 'time':
+                        valueA = new Date(a.time);
+                        valueB = new Date(b.time);
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (valueA < valueB) return sortAscending ? 1 : -1;
+                if (valueA > valueB) return sortAscending ? -1 : 1;
+                return 0;
+            });
+            
+            // 重新渲染表格
+            renderSoftwareTable(softwareData);
+            
+            // 更新排序按钮图标
+            updateSortIcons(sortType, sortAscending);
+        }
+        
+        // 更新排序图标
+        function updateSortIcons(sortType, ascending) {
+            // 清除所有图标
+            document.querySelectorAll('th i').forEach(icon => {
+                icon.className = 'fas fa-sort';
+            });
+            
+            // 设置当前排序的图标
+            const headerMap = {
+                'id': 0,
+                'name': 1,
+                'time': 3
+            };
+            
+            const headerIndex = headerMap[sortType];
+            if (headerIndex !== undefined) {
+                const headers = document.querySelectorAll('th');
+                const icon = headers[headerIndex].querySelector('i');
+                if (icon) {
+                    icon.className = ascending ? 'fas fa-sort-up' : 'fas fa-sort-down';
+                }
+            }
+        }
+        
+        // 筛选软件数据
+        function filterSoftware() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                renderSoftwareTable(softwareData);
+                return;
+            }
+            
+            const filteredData = softwareData.filter(software => 
+                software.name.toLowerCase().includes(searchTerm) || 
+                software.id.toString().includes(searchTerm)
+            );
+            
+            renderSoftwareTable(filteredData);
+        }
+        
+        // 渲染软件表格
+        function renderSoftwareTable(data) {
+            const tbody = document.getElementById('softwareTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            let html = '';
+            
+            data.forEach(software => {
+                // 判断URL类型（外部链接还是本地文件）
+                const isExternalLink = software.url.startsWith('http');
+                const iconClass = isExternalLink ? 'link-icon' : 'file-icon';
+                const icon = isExternalLink ? 'fas fa-external-link-alt' : 'fas fa-download';
+                
+                // 如果是本地文件，添加下载属性
+                const linkAttributes = isExternalLink ? 
+                    'target="_blank" rel="noopener noreferrer"' : 
+                    'download';
+                
+                html += `
+                    <tr>
+                        <td>${software.id}</td>
+                        <td class="software-name">${software.name}</td>
+                        <td class="software-url">
+                            <a href="${software.url}" ${linkAttributes}>
+                                <i class="${icon} ${iconClass}"></i>
+                                ${isExternalLink ? '访问网站' : '下载文件'}
+                            </a>
+                        </td>
+                        <td class="software-time">${software.time}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
