@@ -286,6 +286,18 @@
             gap: 10px;
         }
         
+        .result-password {
+            background: #fff3e0;
+            color: #ef6c00;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
         .btn {
             padding: 10px 20px;
             border-radius: 8px;
@@ -325,6 +337,7 @@
             text-align: center;
             padding: 60px 20px;
             color: #777;
+            grid-column: 1 / -1;
         }
         
         .empty-state i {
@@ -336,6 +349,11 @@
         .empty-state h3 {
             font-size: 1.5rem;
             margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            font-size: 1.1rem;
+            opacity: 0.8;
         }
         
         footer {
@@ -381,6 +399,22 @@
         
         .cloud-icon {
             font-size: 1.1rem;
+        }
+        
+        .password-warning {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
     </style>
 </head>
@@ -435,6 +469,10 @@
                 
                 <div class="cloud-type-badge" id="currentCloudType">夸克网盘</div>
                 
+                <div id="errorContainer" style="display: none;">
+                    <!-- 错误信息将在这里显示 -->
+                </div>
+                
                 <div class="results-list" id="resultsList">
                     <!-- 搜索结果将通过JS动态生成 -->
                 </div>
@@ -456,13 +494,29 @@
             { id: 'tianyi', name: '天翼云盘', icon: 'fas fa-mobile-alt' },
             { id: 'uc', name: 'UC网盘', icon: 'fas fa-upload' },
             { id: 'mobile', name: '移动云盘', icon: 'fas fa-wifi' },
-            { id: '115115', name: '115网盘', icon: 'fas fa-hdd' },
+            { id: '115', name: '115网盘', icon: 'fas fa-hdd' },
             { id: 'pikpak', name: 'PikPak', icon: 'fas fa-box' },
             { id: 'xunlei', name: '迅雷网盘', icon: 'fas fa-bolt' },
             { id: '123', name: '123网盘', icon: 'fas fa-hashtag' },
             { id: 'magnet', name: '磁力链接', icon: 'fas fa-magnet' },
             { id: 'ed2k', name: '电驴链接', icon: 'fas fa-download' }
         ];
+
+        // 网盘类型到API键的映射
+        const cloudTypeToApiKey = {
+            '115': '115',
+            'quark': 'quark',
+            'baidu': 'baidu',
+            'aliyun': 'aliyun',
+            'tianyi': 'tianyi',
+            'uc': 'uc',
+            'mobile': 'mobile',
+            'pikpak': 'pikpak',
+            'xunlei': 'xunlei',
+            '123': '123',
+            'magnet': 'magnet',
+            'ed2k': 'ed2k'
+        };
 
         // 当前选中的网盘类型
         let currentCloudType = 'quark';
@@ -482,18 +536,13 @@
                 `;
                 
                 button.addEventListener('click', () => {
-                    // 移除其他按钮的active类
                     document.querySelectorAll('.cloud-type-btn').forEach(btn => {
                         btn.classList.remove('active');
                     });
                     
-                    // 给当前点击的按钮添加active类
                     button.classList.add('active');
-                    
-                    // 更新当前选中的网盘类型
                     currentCloudType = type.id;
                     
-                    // 更新当前网盘类型显示
                     const typeName = cloudTypes.find(t => t.id === currentCloudType)?.name || currentCloudType;
                     document.getElementById('currentCloudType').textContent = typeName;
                 });
@@ -520,15 +569,40 @@
             }
         }
         
+        // 获取正确的API键
+        function getApiKey(cloudType) {
+            return cloudTypeToApiKey[cloudType] || cloudType;
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            errorContainer.style.display = 'block';
+        }
+        
+        // 隐藏错误信息
+        function hideError() {
+            document.getElementById('errorContainer').style.display = 'none';
+        }
+        
         // 显示搜索结果
-        function displayResults(results, cloudType) {
+        function displayResults(results, cloudType, total = 0) {
             const resultsList = document.getElementById('resultsList');
             const resultsCount = document.getElementById('resultsCount');
             const resultsContainer = document.getElementById('resultsContainer');
             const currentCloudTypeElement = document.getElementById('currentCloudType');
             
+            // 隐藏错误信息
+            hideError();
+            
             // 更新结果数量
-            resultsCount.textContent = `找到 ${results.length} 个资源`;
+            resultsCount.textContent = `找到 ${total} 个资源`;
             
             // 更新当前网盘类型显示
             const typeName = cloudTypes.find(t => t.id === cloudType)?.name || cloudType;
@@ -540,7 +614,7 @@
             if (results.length === 0) {
                 resultsList.innerHTML = `
                     <div class="empty-state">
-                        <i class="fas fa-cloud"></i>
+                        <i class="fas fa-search"></i>
                         <h3>未找到相关资源</h3>
                         <p>尝试更换关键词或选择其他网盘类型</p>
                     </div>
@@ -563,10 +637,19 @@
                 const note = result.note || '未命名资源';
                 const truncatedNote = note.length > 60 ? note.substring(0, 60) + '...' : note;
                 
+                // 检查是否有提取密码
+                const hasPassword = result.password && result.password.trim() !== '';
+                
                 card.innerHTML = `
                     <img src="${imageUrl}" alt="${note}" class="result-image" onerror="this.src='https://via.placeholder.com/400x200/f0f0f0/666?text=图片加载失败'">
                     <div class="result-content">
                         <div class="result-title" title="${note}">${truncatedNote}</div>
+                        ${hasPassword ? `
+                            <div class="result-password">
+                                <i class="fas fa-key"></i>
+                                提取码: <span class="password-warning">${result.password}</span>
+                            </div>
+                        ` : ''}
                         <div class="result-meta">
                             <span class="result-source">${result.source || '未知来源'}</span>
                             <span class="result-date">
@@ -579,7 +662,7 @@
                                 <i class="fas fa-external-link-alt"></i>
                                 访问链接
                             </a>
-                            <button class="btn btn-secondary copy-btn" data-url="${result.url}">
+                            <button class="btn btn-secondary copy-btn" data-url="${result.url}" data-password="${result.password || ''}">
                                 <i class="far fa-copy"></i>
                                 复制
                             </button>
@@ -594,7 +677,12 @@
             document.querySelectorAll('.copy-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const url = this.dataset.url;
-                    navigator.clipboard.writeText(url).then(() => {
+                    const password = this.dataset.password;
+                    
+                    // 如果有关联密码，一起复制
+                    const textToCopy = password ? `${url}\n提取码: ${password}` : url;
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
                         const originalText = this.innerHTML;
                         this.innerHTML = '<i class="fas fa-check"></i> 已复制';
                         this.style.background = '#4caf50';
@@ -623,6 +711,7 @@
             // 显示加载动画
             loadingElement.style.display = 'block';
             resultsContainer.style.display = 'none';
+            hideError();
             
             try {
                 // 构建API URL
@@ -634,29 +723,60 @@
                     headers: {
                         'Accept': 'application/json',
                     },
-                    mode: 'cors' // 注意：如果API不支持CORS，这将失败
+                    mode: 'cors'
                 });
                 
                 if (response.ok) {
                     const data = await response.json();
                     
-                    if (data.code === 0 && data.data && data.data.merged_by_type && data.data.merged_by_type[cloudType]) {
-                        // 使用API返回的真实数据
-                        displayResults(data.data.merged_by_type[cloudType], cloudType);
+                    if (data.code === 0) {
+                        // API返回成功
+                        if (data.data && data.data.total > 0 && data.data.merged_by_type) {
+                            // 获取正确的API键
+                            const apiKey = getApiKey(cloudType);
+                            
+                            // 尝试获取对应网盘类型的数据
+                            let results = [];
+                            let total = data.data.total || 0;
+                            
+                            if (data.data.merged_by_type[apiKey]) {
+                                // 直接获取数据
+                                results = data.data.merged_by_type[apiKey];
+                            } else if (cloudType === '115' && data.data.merged_by_type['115']) {
+                                // 处理115网盘的特殊情况
+                                results = data.data.merged_by_type['115'];
+                            } else {
+                                // 没有对应网盘类型的数据
+                                results = [];
+                            }
+                            
+                            // 显示结果
+                            displayResults(results, cloudType, total);
+                        } else {
+                            // 没有找到数据
+                            displayResults([], cloudType, 0);
+                        }
                     } else {
-                        // API返回了数据但没有结果，使用模拟数据
-                        console.warn('API返回了数据但没有结果，使用模拟数据');
-                        displayResults(mockResults, cloudType);
+                        // API返回了错误代码
+                        showError(`API错误: ${data.message || '未知错误'}`);
+                        displayResults([], cloudType, 0);
                     }
                 } else {
-                    // API请求失败，使用模拟数据
-                    console.warn('API请求失败，使用模拟数据');
-                    displayResults(mockResults, cloudType);
+                    // API请求失败
+                    showError(`请求失败: HTTP ${response.status}`);
+                    displayResults([], cloudType, 0);
                 }
             } catch (error) {
-                // 发生错误，使用模拟数据
+                // 发生网络错误
                 console.error('搜索过程中发生错误:', error);
-                displayResults(mockResults, cloudType);
+                
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    showError('网络连接错误，请检查网络连接或API地址');
+                } else {
+                    showError(`搜索失败: ${error.message}`);
+                }
+                
+                displayResults([], cloudType, 0);
             } finally {
                 // 隐藏加载动画
                 loadingElement.style.display = 'none';
@@ -688,8 +808,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             initCloudTypeButtons();
             
-            // 默认显示一些示例结果
-            displayResults(mockResults, currentCloudType);
+            // 初始显示空状态
+            displayResults([], currentCloudType, 0);
         });
     </script>
 </body>
