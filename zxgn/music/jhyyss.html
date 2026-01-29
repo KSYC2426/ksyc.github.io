@@ -723,7 +723,7 @@
             hideError();
             
             try {
-                const url = `https://api.jkyai.top/API/hqyyid.php?name=${encodeURIComponent(query)}&type=${type}&page=${page}&limit=${limit}`;
+                const url = `https://yunzhiapi.cn/API/hqyyid.php?name=${encodeURIComponent(query)}&type=${type}&page=${page}&limit=${limit}`;
                 const response = await fetch(url);
                 const data = await response.json();
                 
@@ -813,7 +813,7 @@
             
             try {
                 // 获取歌曲详情
-                const url = `https://api.jkyai.top/API/yyjhss.php?id=${song.id}&type=${song.type}`;
+                const url = `https://yunzhiapi.cn/API/yyjhss.php?id=${song.id}&type=${song.type}`;
                 const response = await fetch(url);
                 const data = await response.json();
                 
