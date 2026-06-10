@@ -1,0 +1,578 @@
+/* ===========================================
+   zeng-wang-lun.css — 赠汪伦演示文稿样式
+   =========================================== */
+
+:root {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2a2520;
+    --text-primary: #e8e4df;
+    --text-secondary: #9a9590;
+    --text-muted: #6b6660;
+    --accent-warm: #d4a574;
+    --accent-gold: #c9b896;
+    --accent-pink: #e8b4b8;
+    --accent-ink: #3a3530;
+    --accent-red: #c43a31;
+    --seal-red: #9e2a2a;
+    --font-display: 'Noto Serif SC', serif;
+    --font-body: 'Noto Sans SC', sans-serif;
+    --font-script: 'Ma Shan Zheng', cursive;
+    --title-size: 76px;
+    --subtitle-size: 34px;
+    --body-size: 26px;
+    --poem-size: 42px;
+    --slide-padding: 80px;
+    --content-gap: 28px;
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --duration-normal: 0.8s;
+    --duration-slow: 1.2s;
+    --duration-exit: 0.6s;
+    --duration-enter: 0.8s;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%; height: 100%; margin: 0; overflow: hidden;
+    background: var(--bg-primary);
+}
+
+.deck-viewport {
+    position: fixed; inset: 0; overflow: hidden;
+    background: var(--bg-primary);
+}
+
+.deck-stage {
+    position: absolute; left: 0; top: 0;
+    width: 1920px; height: 1080px; overflow: hidden;
+    transform-origin: 0 0; background: var(--bg-primary);
+}
+
+/* ===========================================
+   SLIDE BASE
+   =========================================== */
+.slide {
+    position: absolute; inset: 0;
+    width: 1920px; height: 1080px; overflow: hidden;
+    display: block; visibility: hidden; opacity: 0;
+    pointer-events: none; background: var(--bg-primary);
+}
+
+.slide.active {
+    visibility: visible; opacity: 1;
+    pointer-events: auto; z-index: 1;
+}
+
+/* Enter animation state */
+.slide.entering {
+    visibility: visible; opacity: 1;
+    pointer-events: auto; z-index: 2;
+}
+
+/* Exit animation state */
+.slide.exiting {
+    visibility: visible; opacity: 1;
+    pointer-events: auto; z-index: 3;
+}
+
+img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+
+@media print {
+    html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+    .deck-viewport { position: static; overflow: visible; background: #fff; }
+    .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+    .slide { position: relative; display: block !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; width: 1920px; height: 1080px; break-after: page; page-break-after: always; }
+    .slide:last-child { break-after: auto; page-break-after: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+}
+
+/* ===========================================
+   BACKGROUND & DECORATIONS
+   =========================================== */
+.ink-bg {
+    position: absolute; inset: 0;
+    background:
+        radial-gradient(ellipse at 15% 85%, rgba(212,165,116,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 15%, rgba(200,184,150,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(232,180,184,0.04) 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg-primary) 0%, #2a2520 100%);
+}
+
+.ink-splash {
+    position: absolute; border-radius: 50%; opacity: 0.06; pointer-events: none;
+}
+.ink-splash-1 { width: 600px; height: 600px; top: -200px; right: -150px; background: radial-gradient(circle, var(--accent-warm) 0%, transparent 70%); }
+.ink-splash-2 { width: 400px; height: 400px; bottom: -100px; left: -100px; background: radial-gradient(circle, var(--accent-pink) 0%, transparent 70%); }
+.ink-splash-3 { width: 250px; height: 250px; top: 40%; left: 60%; background: radial-gradient(circle, var(--accent-gold) 0%, transparent 70%); }
+
+.scroll-line {
+    position: absolute; top: 60px; bottom: 60px; width: 2px;
+    background: linear-gradient(180deg, transparent 0%, var(--accent-warm) 20%, var(--accent-warm) 80%, transparent 100%);
+    opacity: 0.3;
+}
+.scroll-line-left { left: 60px; }
+.scroll-line-right { right: 60px; }
+
+.horiz-line {
+    position: absolute; height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--accent-gold) 50%, transparent 100%);
+    opacity: 0.2;
+}
+.horiz-line-top { top: 40px; left: 80px; right: 80px; }
+.horiz-line-bottom { bottom: 40px; left: 80px; right: 80px; }
+
+.seal {
+    position: absolute; width: 80px; height: 80px;
+    border: 3px solid var(--seal-red);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-script); font-size: 28px; color: var(--seal-red);
+    opacity: 0.7; transform: rotate(-5deg);
+}
+.seal-bottom-right { bottom: 60px; right: 80px; }
+.seal-top-left { top: 60px; left: 80px; width: 60px; height: 60px; font-size: 20px; }
+
+.slide-content {
+    position: absolute; inset: 0; padding: var(--slide-padding);
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: center; z-index: 2;
+}
+.slide-content.left-align { align-items: flex-start; padding-left: 120px; }
+
+/* ===========================================
+   ENTER ANIMATIONS (content elements)
+   =========================================== */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity var(--duration-normal) var(--ease-out-expo),
+                transform var(--duration-normal) var(--ease-out-expo);
+}
+.slide.entering .reveal,
+.slide.active .reveal {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity var(--duration-slow) var(--ease-out-expo),
+                transform var(--duration-slow) var(--ease-out-expo);
+}
+.slide.entering .reveal-scale,
+.slide.active .reveal-scale {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-60px);
+    transition: opacity var(--duration-normal) var(--ease-out-expo),
+                transform var(--duration-normal) var(--ease-out-expo);
+}
+.slide.entering .reveal-left,
+.slide.active .reveal-left {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity var(--duration-normal) var(--ease-out-expo),
+                transform var(--duration-normal) var(--ease-out-expo);
+}
+.slide.entering .reveal-right,
+.slide.active .reveal-right {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.d1 { transition-delay: 0.1s; }
+.d2 { transition-delay: 0.3s; }
+.d3 { transition-delay: 0.5s; }
+.d4 { transition-delay: 0.7s; }
+.d5 { transition-delay: 0.9s; }
+.d6 { transition-delay: 1.1s; }
+.d7 { transition-delay: 1.3s; }
+
+/* ===========================================
+   EXIT ANIMATIONS (entire slide)
+   =========================================== */
+
+/* 1. Fade + Scale Down */
+.slide.exit-fade {
+    animation: exitFade var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitFade {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.85); }
+}
+
+/* 2. Slide Left */
+.slide.exit-slideLeft {
+    animation: exitSlideLeft var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitSlideLeft {
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(-120px); }
+}
+
+/* 3. Slide Right */
+.slide.exit-slideRight {
+    animation: exitSlideRight var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitSlideRight {
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(120px); }
+}
+
+/* 4. Zoom Out */
+.slide.exit-zoom {
+    animation: exitZoom var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitZoom {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.5); }
+}
+
+/* 5. Blur Out */
+.slide.exit-blur {
+    animation: exitBlur var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitBlur {
+    0% { opacity: 1; filter: blur(0); }
+    100% { opacity: 0; filter: blur(10px); }
+}
+
+/* 6. 3D Flip Out (Y-axis) */
+.slide.exit-flipY {
+    animation: exitFlipY var(--duration-exit) var(--ease-in-out) forwards;
+    transform-style: preserve-3d;
+    perspective: 1200px;
+}
+@keyframes exitFlipY {
+    0% { opacity: 1; transform: rotateY(0deg); }
+    100% { opacity: 0; transform: rotateY(-90deg); }
+}
+
+/* 7. 3D Flip Out (X-axis) */
+.slide.exit-flipX {
+    animation: exitFlipX var(--duration-exit) var(--ease-in-out) forwards;
+    transform-style: preserve-3d;
+    perspective: 1200px;
+}
+@keyframes exitFlipX {
+    0% { opacity: 1; transform: rotateX(0deg); }
+    100% { opacity: 0; transform: rotateX(90deg); }
+}
+
+/* 8. Slide Up (like curtain rising) */
+.slide.exit-slideUp {
+    animation: exitSlideUp var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitSlideUp {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-120px); }
+}
+
+/* 9. Slide Down */
+.slide.exit-slideDown {
+    animation: exitSlideDown var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitSlideDown {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(120px); }
+}
+
+/* 10. Rotate + Scale Out */
+.slide.exit-rotate {
+    animation: exitRotate var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitRotate {
+    0% { opacity: 1; transform: rotate(0deg) scale(1); }
+    100% { opacity: 0; transform: rotate(15deg) scale(0.7); }
+}
+
+/* 11. Wipe Left (clip-path) */
+.slide.exit-wipeLeft {
+    animation: exitWipeLeft var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitWipeLeft {
+    0% { clip-path: inset(0 0 0 0); }
+    100% { clip-path: inset(0 100% 0 0); }
+}
+
+/* 12. Wipe Up */
+.slide.exit-wipeUp {
+    animation: exitWipeUp var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitWipeUp {
+    0% { clip-path: inset(0 0 0 0); }
+    100% { clip-path: inset(100% 0 0 0); }
+}
+
+/* 13. Radial Wipe */
+.slide.exit-radial {
+    animation: exitRadial var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitRadial {
+    0% { clip-path: circle(100% at 50% 50%); }
+    100% { clip-path: circle(0% at 50% 50%); }
+}
+
+/* 14. Shrink + Fade to Corner */
+.slide.exit-corner {
+    animation: exitCorner var(--duration-exit) var(--ease-in-out) forwards;
+}
+@keyframes exitCorner {
+    0% { opacity: 1; transform: scale(1) translate(0, 0); }
+    100% { opacity: 0; transform: scale(0.3) translate(400px, -300px); }
+}
+
+/* ===========================================
+   ENTER ANIMATIONS (entire slide)
+   =========================================== */
+
+/* Slide in from right */
+.slide.enter-fromRight {
+    animation: enterFromRight var(--duration-enter) var(--ease-out-expo) forwards;
+}
+@keyframes enterFromRight {
+    0% { opacity: 0; transform: translateX(120px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+/* Slide in from left */
+.slide.enter-fromLeft {
+    animation: enterFromLeft var(--duration-enter) var(--ease-out-expo) forwards;
+}
+@keyframes enterFromLeft {
+    0% { opacity: 0; transform: translateX(-120px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+/* Slide in from bottom */
+.slide.enter-fromBottom {
+    animation: enterFromBottom var(--duration-enter) var(--ease-out-expo) forwards;
+}
+@keyframes enterFromBottom {
+    0% { opacity: 0; transform: translateY(120px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide in from top */
+.slide.enter-fromTop {
+    animation: enterFromTop var(--duration-enter) var(--ease-out-expo) forwards;
+}
+@keyframes enterFromTop {
+    0% { opacity: 0; transform: translateY(-120px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Scale in */
+.slide.enter-scale {
+    animation: enterScale var(--duration-enter) var(--ease-out-expo) forwards;
+}
+@keyframes enterScale {
+    0% { opacity: 0; transform: scale(0.7); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* 3D Flip in */
+.slide.enter-flipY {
+    animation: enterFlipY var(--duration-enter) var(--ease-out-expo) forwards;
+    transform-style: preserve-3d;
+    perspective: 1200px;
+}
+@keyframes enterFlipY {
+    0% { opacity: 0; transform: rotateY(90deg); }
+    100% { opacity: 1; transform: rotateY(0deg); }
+}
+
+/* Fade in */
+.slide.enter-fade {
+    animation: enterFade var(--duration-enter) var(--ease-out-expo) forwards;
+}
+@keyframes enterFade {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* ===========================================
+   VIDEO BACKGROUND
+   =========================================== */
+.slide-video-bg {
+    position: absolute; top: 50%; left: 50%;
+    width: 100%; height: 100%; object-fit: cover;
+    transform: translate(-50%, -50%); z-index: 0;
+}
+.video-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(26,26,26,0.7) 0%, rgba(42,37,32,0.5) 50%, rgba(26,26,26,0.7) 100%);
+    z-index: 1;
+}
+
+/* ===========================================
+   VIDEO TRANSITION SLIDE
+   =========================================== */
+.video-transition-slide {
+    background: var(--bg-primary);
+    display: flex; align-items: center; justify-content: center;
+}
+.video-transition-slide .video-transition-player {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 85%; max-height: 85%;
+    width: auto; height: auto;
+    z-index: 2;
+    border-radius: 12px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    cursor: pointer;
+}
+.video-transition-hint {
+    position: absolute; bottom: 60px; left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-body); font-size: 15px;
+    font-weight: 300; color: rgba(232,228,223,0.35);
+    letter-spacing: 4px; z-index: 5;
+    animation: videoHintPulse 2s ease-in-out infinite;
+}
+@keyframes videoHintPulse {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.7; }
+}
+
+/* ===========================================
+   TITLE SLIDE
+   =========================================== */
+.title-slide .slide-content { justify-content: center; gap: 16px; }
+.title-poem-name { font-family: var(--font-script); font-size: 44px; color: var(--accent-warm); letter-spacing: 8px; opacity: 0.8; }
+.title-main { font-family: var(--font-display); font-size: var(--title-size); font-weight: 900; color: var(--text-primary); letter-spacing: 12px; text-shadow: 0 2px 20px rgba(212,165,116,0.3); }
+.title-sub { font-family: var(--font-body); font-size: var(--subtitle-size); font-weight: 300; color: var(--text-secondary); letter-spacing: 6px; margin-top: 10px; }
+.title-info { font-family: var(--font-body); font-size: 22px; color: var(--text-muted); letter-spacing: 4px; margin-top: 40px; font-weight: 300; }
+.divider-line { width: 120px; height: 2px; background: linear-gradient(90deg, transparent, var(--accent-warm), transparent); margin: 16px 0; }
+
+/* ===========================================
+   POEM SLIDE
+   =========================================== */
+.poem-slide .slide-content { justify-content: center; gap: 14px; }
+.poem-line { font-family: var(--font-display); font-size: var(--poem-size); font-weight: 700; color: var(--text-primary); letter-spacing: 6px; line-height: 1.8; text-align: center; text-shadow: 0 1px 10px rgba(212,165,116,0.15); }
+.poem-line .highlight { color: var(--accent-warm); }
+.poem-line .highlight-red { color: var(--accent-red); }
+.poem-section-label { font-family: var(--font-body); font-size: 18px; font-weight: 300; color: var(--text-muted); letter-spacing: 6px; margin-bottom: 16px; }
+
+/* ===========================================
+   CONTENT SLIDE
+   =========================================== */
+.content-slide .slide-content { align-items: flex-start; padding-left: 140px; padding-right: 140px; gap: 20px; }
+.content-slide .section-number { font-family: var(--font-script); font-size: 28px; color: var(--accent-warm); opacity: 0.6; letter-spacing: 4px; }
+.content-slide h2 { font-family: var(--font-display); font-size: 50px; font-weight: 700; color: var(--text-primary); letter-spacing: 6px; margin-bottom: 8px; }
+.content-slide p { font-family: var(--font-body); font-size: var(--body-size); font-weight: 300; color: var(--text-secondary); line-height: 1.8; letter-spacing: 2px; max-width: 1400px; }
+.content-slide .quote-block { font-family: var(--font-display); font-size: 32px; font-weight: 600; color: var(--accent-warm); line-height: 1.6; letter-spacing: 4px; padding: 24px 36px; border-left: 3px solid var(--accent-warm); margin: 8px 0; background: rgba(212,165,116,0.05); border-radius: 0 8px 8px 0; }
+
+/* ===========================================
+   TWO-COLUMN
+   =========================================== */
+.two-col { display: flex; flex-direction: row; gap: 60px; width: 100%; margin-top: 10px; }
+.two-col .col { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.two-col .col h3 { font-family: var(--font-display); font-size: 30px; font-weight: 700; color: var(--accent-warm); letter-spacing: 4px; margin-bottom: 6px; }
+.two-col .col p { font-size: 22px; }
+
+/* ===========================================
+   LIST SLIDE
+   =========================================== */
+.list-slide .slide-content { align-items: flex-start; padding-left: 140px; padding-right: 140px; gap: 16px; }
+.list-slide .section-number { font-family: var(--font-script); font-size: 28px; color: var(--accent-warm); opacity: 0.6; letter-spacing: 4px; }
+.list-slide h2 { font-family: var(--font-display); font-size: 50px; font-weight: 700; color: var(--text-primary); letter-spacing: 6px; margin-bottom: 8px; }
+.list-item { font-family: var(--font-body); font-size: 24px; font-weight: 300; color: var(--text-secondary); line-height: 1.7; letter-spacing: 2px; padding-left: 30px; position: relative; }
+.list-item::before { content: "·"; position: absolute; left: 6px; color: var(--accent-warm); font-weight: 700; font-size: 28px; }
+.list-item strong { color: var(--accent-gold); font-weight: 500; }
+
+/* ===========================================
+   DISCUSSION
+   =========================================== */
+.discussion-item { font-family: var(--font-body); font-size: 22px; font-weight: 300; color: var(--text-secondary); line-height: 1.7; letter-spacing: 2px; padding-left: 36px; position: relative; }
+.discussion-item::before { content: counter(q) "."; counter-increment: q; position: absolute; left: 0; color: var(--accent-warm); font-weight: 600; font-size: 22px; }
+.discussion-list { counter-reset: q; display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
+
+/* ===========================================
+   CLOSING SLIDE
+   =========================================== */
+.closing-slide .slide-content { justify-content: center; gap: 20px; }
+.closing-slide .closing-quote { font-family: var(--font-display); font-size: 44px; font-weight: 700; color: var(--accent-warm); letter-spacing: 6px; text-align: center; line-height: 1.6; text-shadow: 0 2px 20px rgba(212,165,116,0.2); }
+.closing-slide .closing-sub { font-family: var(--font-body); font-size: 28px; font-weight: 300; color: var(--text-muted); letter-spacing: 6px; margin-top: 20px; }
+.closing-slide .closing-thanks { font-family: var(--font-script); font-size: 52px; color: var(--accent-warm); letter-spacing: 8px; opacity: 0.9; margin-top: 30px; }
+
+/* ===========================================
+   PAGE COUNTER
+   =========================================== */
+.page-counter { position: absolute; bottom: 50px; right: 80px; font-family: var(--font-body); font-size: 16px; font-weight: 300; color: var(--text-muted); letter-spacing: 3px; z-index: 10; opacity: 0.6; }
+
+/* ===========================================
+   NAVIGATION DOTS
+   =========================================== */
+.nav-dots { position: absolute; right: 30px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+.nav-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--text-muted); background: transparent; cursor: pointer; transition: all 0.3s ease; }
+.nav-dot.active { background: var(--accent-warm); border-color: var(--accent-warm); box-shadow: 0 0 10px rgba(212,165,116,0.4); }
+.nav-dot:hover { border-color: var(--accent-gold); }
+
+/* ===========================================
+   FONT SIZE BAR (bottom-right slider)
+   =========================================== */
+.font-size-bar {
+    position: fixed; bottom: 20px; right: 60px;
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(26,26,26,0.75);
+    border: 1px solid rgba(212,165,116,0.2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    z-index: 200;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.font-size-label {
+    font-family: var(--font-body);
+    font-size: 13px; font-weight: 300;
+    color: var(--text-muted);
+    line-height: 1;
+}
+.font-size-slider {
+    width: 80px; -webkit-appearance: none; appearance: none;
+    height: 3px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent-warm), var(--accent-gold));
+    outline: none; cursor: pointer;
+}
+.font-size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent-warm); border: 2px solid var(--bg-primary);
+    cursor: pointer; box-shadow: 0 0 4px rgba(212,165,116,0.4);
+}
+.font-size-slider::-moz-range-thumb {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent-warm); border: 2px solid var(--bg-primary);
+    cursor: pointer;
+}
+.font-size-value {
+    font-family: var(--font-body);
+    font-size: 11px; font-weight: 500;
+    color: var(--text-secondary);
+    min-width: 32px; text-align: center;
+    line-height: 1;
+}
+
+/* ===========================================
+   INK ANIMATION
+   =========================================== */
+@keyframes inkFlow {
+    0% { transform: scale(1) rotate(0deg); opacity: 0.04; }
+    50% { transform: scale(1.1) rotate(3deg); opacity: 0.07; }
+    100% { transform: scale(1) rotate(0deg); opacity: 0.04; }
+}
+.ink-animate { animation: inkFlow 12s ease-in-out infinite; }
