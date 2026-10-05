@@ -401,9 +401,11 @@ async function doSearch() {
     renderSongList();
   } catch (e) {
     console.error(e);
-    el.searchResult.innerHTML = `<div class="state"><div class="big">⚠</div><div>搜索失败：${esc(e.message)}<br><small style="opacity:.7">可尝试切换音源或检查网络 / 代理</small></div></div>`;
+    el.searchResult.innerHTML = `<div class="state"><div class="big">⚠</div><div>搜索失败：${esc(e.message)}<br><small style="opacity:.7">可尝试切换音源，或检查网络 / 代理是否可用</small></div><div class="state-actions"><button class="btn-retry" id="btnSearchRetry">重试</button></div></div>`;
     el.searchSub.textContent = '搜索失败';
     state.hasMore = false;
+    const retry = document.getElementById('btnSearchRetry');
+    if (retry) retry.onclick = doSearch;
   }
 }
 

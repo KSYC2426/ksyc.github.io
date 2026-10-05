@@ -40,18 +40,21 @@ const CONFIG = {
 };
 
 /* ---------- 通用请求：依次尝试直连与各代理 ---------- */
+const REQ_TIMEOUT = 12000;   // 单个通道超时（毫秒）
+
 async function smartFetch(url, asJson = true) {
-  let lastErr = null;
-  for (const wrap of CONFIG.proxies) {
+  const errors = [];
+  for (let i = 0; i < CONFIG.proxies.length; i++) {
+    const wrap = CONFIG.proxies[i];
     const target = wrap(url);
+    const channel = i === 0 ? '直连' : `代理${i}`;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), REQ_TIMEOUT);
     try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 15000);
       const res = await fetch(target, { signal: ctrl.signal });
-      clearTimeout(timer);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const text = await res.text();
-      if (!asJson) return text;
+      if (!asJson) { clearTimeout(timer); return text; }
       // 有些代理会包裹一层，这里做兼容
       let data;
       try { data = JSON.parse(text); }
@@ -60,13 +63,22 @@ async function smartFetch(url, asJson = true) {
         if (!m) throw new Error('返回不是 JSON');
         data = JSON.parse(m[0]);
       }
+      clearTimeout(timer);
       return data;
     } catch (e) {
-      lastErr = e;
-      console.warn('[smartFetch] 失败，换下一个通道：', target, e.message);
+      // 归一化：把 AbortError 转成更易懂的超时提示
+      const msg = (e && e.name === 'AbortError')
+        ? `超时（${REQ_TIMEOUT / 1000}s）`
+        : (e && e.message ? e.message : String(e));
+      errors.push(`${channel}: ${msg}`);
+      console.warn('[smartFetch] 通道失败：', target, msg);
+    } finally {
+      clearTimeout(timer);
     }
   }
-  throw lastErr || new Error('请求失败');
+  const err = new Error('所有通道均不可用（' + errors.join('；') + '）');
+  err.details = errors;
+  throw err;
 }
 
 /* ---------- 搜索（支持分页） ---------- */
