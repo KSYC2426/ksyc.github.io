@@ -8,20 +8,17 @@
  * ========================================================= */
 
 const CONFIG = {
-  // 搜索接口（返回歌曲列表）。若你有更稳定的搜索接口，改这里即可。
+  // 搜索接口：使用自带 CORS 的公开音乐聚合 API，静态站点可直连，无需代理
   search: {
-    // 网易云官方搜索接口（已验证可用，返回 result.songs）
-    wy: 'https://music.163.com/api/search/get/web',
-    // 酷狗官方搜索接口（已验证可用）
-    kg: 'http://mobilecdn.kugou.com/api/v3/search/song'
+    // 网易云 + 酷狗 聚合搜索（返回 { data: [...] }），源用 source 区分
+    wy: 'https://api.vkeys.cn/v2/music/netease',
+    kg: 'https://api.vkeys.cn/v2/music/kugou'
   },
 
   // 解析（拿播放地址 / 歌词 / 封面）
   resolve: {
-    // 网易云：?id=歌曲ID&type=json&level=exhigh
-    wy: 'https://music.haitangw.cc/wy/wy.php',
-    // 酷狗：?id=hash&level=standard
-    kg: 'https://music.haitangw.cc/music/kg_song换源版.php'
+    wy: 'https://api.vkeys.cn/v2/music/netease',
+    kg: 'https://api.vkeys.cn/v2/music/kugou'
   },
 
   // 音质档位
@@ -30,12 +27,9 @@ const CONFIG = {
     kg: 'standard'  // standard / high / flac
   },
 
-  // 公共 CORS 代理（当直连被拦时使用）。可自行替换。
+  // 该 API 自带 CORS，直连即可；如某天失效可在此追加备用地址
   proxies: [
-    (u) => u, // 直连
-    (u) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
-    (u) => 'https://corsproxy.io/?' + encodeURIComponent(u),
-    (u) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u)
+    (u) => u // 直连
   ]
 };
 
@@ -86,16 +80,9 @@ const PAGE_SIZE = 30;
 
 async function searchMusic(source, keyword, page = 1) {
   const kw = encodeURIComponent(keyword.trim());
-  const offset = (page - 1) * PAGE_SIZE;
-  let url;
-
-  if (source === 'wy') {
-    // 网易云官方搜索：?s=关键词&type=1(单曲)&limit=30&offset=偏移
-    url = `${CONFIG.search.wy}?s=${kw}&type=1&limit=${PAGE_SIZE}&offset=${offset}`;
-  } else {
-    // 酷狗官方搜索接口：mobilecdn.kugou.com/api/v3/search/song
-    url = `${CONFIG.search.kg}?format=json&keyword=${kw}&page=${page}&pagesize=${PAGE_SIZE}&showtype=1`;
-  }
+  const base = source === 'wy' ? CONFIG.search.wy : CONFIG.search.kg;
+  // vkeys 搜索：?word=关键词&page=页码&num=每页数量
+  const url = `${base}?word=${kw}&page=${page}&num=${PAGE_SIZE}`;
 
   const res = await smartFetch(url);
   return normalizeSearch(source, res);
@@ -104,6 +91,23 @@ async function searchMusic(source, keyword, page = 1) {
 /* ---------- 把不同源的搜索结果统一成同一种结构 ---------- */
 function normalizeSearch(source, res) {
   const list = [];
+
+  // vkeys 聚合返回：{ code, message, data: [ { id, song, singer, album, time, quality, cover } ] }
+  const vkSongs = Array.isArray(res?.data) ? res.data : null;
+  if (vkSongs) {
+    vkSongs.forEach((s) => {
+      list.push({
+        source,
+        id: String(s.id ?? ''),
+        name: s.song ?? s.name ?? '未知歌曲',
+        artist: s.singer ?? s.artist ?? '未知歌手',
+        album: s.album ?? '',
+        pic: s.cover ?? s.pic ?? '',
+        duration: 0   // 该接口不返回时长
+      });
+    });
+    return list;
+  }
 
   // 网易云常见返回：{ code, data: { songs: [...] } } 或 { result: { songs: [...] } }
   const wySongs =
